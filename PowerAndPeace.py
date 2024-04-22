@@ -12,7 +12,7 @@ PROBLEM_DESC = \
 
 # <COMMON_DATA>
 
-CLOCK = {'Hour': 11 , 'Minute': 30}
+CLOCK = {'Hour': 11 , 'Minute': 00}
 
 PLAYERS = {1: {'money': 100, 2: 100, 3: 100, 4: 100, 'cards': []},
            2: {'money': 100, 1: 100, 3: 100, 4: 100, 'cards': []},
@@ -29,11 +29,11 @@ CARDS = {1: {'name': 'Treaty', 'cost': 10, 'effect': 'Add 10 to a chosen player 
 # <COMMON_CODE>
 class State:
     def __init__(self):
+        self.game_turn = 1
         self.players = PLAYERS
         self.cards = CARDS
         self.clock = CLOCK
         self.current_player = 1
-        self.last_action = None
         
 
     def __eq__(self, s2):
@@ -69,7 +69,10 @@ class State:
         new_state = State()
         new_state.players = {p: self.players[p].copy() for p in self.players}
         new_state.current_player = self.current_player
-        new_state.last_action = self.last_action
+        new_state.cards = self.cards
+        new_state.clock = self.clock
+        new_state.game_turn = self.game_turn
+
         return new_state
 
     def can_move(self, card):
@@ -107,6 +110,8 @@ class State:
 
 # <OPERATORS>
 from soluzion import Basic_Operator as Operator
+
+
 
 OPERATORS = [Operator("Move disk from " + p + " to " + q,
                       lambda s, p1=p, q1=q: s.can_move(p1, q1),
