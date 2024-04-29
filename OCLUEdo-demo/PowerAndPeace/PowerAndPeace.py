@@ -14,7 +14,7 @@ PROBLEM_DESC = \
 
 CLOCK = {'Hour': 11 , 'Minute': 00}
 
-PLAYERS = {1: {'money': 100, 2: 100, 3: 100, 4: 100, 'cards': []},
+PLAYERS = {1: {'money': 100, 2: 100, 3: 100, 4: 100, 'cards': [1]},
            2: {'money': 100, 1: 100, 3: 100, 4: 100, 'cards': []},
            3: {'money': 100, 1: 100, 2: 100, 4: 100, 'cards': []},
            4: {'money': 100, 1: 100, 2: 100, 3: 100, 'cards': []}}
@@ -85,26 +85,35 @@ class State:
         except (Exception) as e:
             print(e)
 
-    def move(self, From, To):
+    def move(self, card):
         '''Assuming it's legal to make the move, this computes
        the new state resulting from moving the topmost disk
        from the From peg to the To peg.'''
         news = self.copy()  # start with a deep copy.
-        pf = self.d[From]  # peg disk goes from.
-        pt = self.d[To]
-        df = pf[-1]  # the disk to move.
-        news.d[From] = pf[:-1]  # remove it from its old peg.
-        news.d[To] = pt[:] + [df]  # Put disk onto destination peg.
+        news.players[self.current_player]['cards'].remove(card)
+        news.players[self.current_player]['money'] -= self.cards[card]['cost']
+        news.players[self.current_player]['money'] += 210
+        news.game_turn += 1
+        if card == 1:
+            player = int(input("Choose a player to add 10 to: "))
+            news.players[player][self.current_player] += 10
+            news.players[self.current_player][player] += 10
+            player = int(input("Choose a player to remove 10 from: "))
+            news.players[player][self.current_player] -= 10
+            news.players[self.current_player][player] -= 10
+        news.current_player = (news.current_player % 4) + 1
+        news.players[news.current_player]['cards'].append(1)
+        news.clock['Hour'] += 1
         return news  # return new state
 
 
     def is_goal(self):
-        '''If the first two pegs are empty, then s is a goal state.'''
-        return self.d['peg1'] == [] and self.d['peg2'] == []
+        '''WIP: Checks if the current state is a goal state.'''
+        return self.game_turn == 12 or self.players[self.current_player]['money'] >= 200
 
 
     def goal_message(self):
-        return "The Tower Transport is Triumphant!"
+        return "You have taken over the world!"
 
 # </COMMON_CODE>
 
@@ -113,13 +122,11 @@ from soluzion import Basic_Operator as Operator
 
 
 
-OPERATORS = [Operator("Move disk from " + p + " to " + q,
-                      lambda s, p1=p, q1=q: s.can_move(p1, q1),
-                      # The default value construct is needed
-                      # here to capture the values of p&q separately
-                      # in each iteration of the list comp. iteration.
-                      lambda s, p1=p, q1=q: s.move(p1, q1))
-             for (p, q) in peg_combinations]
+OPERATORS = [Operator("Play card " + CARDS[card_id]['name'],
+                      lambda s, card_id=card_id: s.can_move(card_id),
+                      lambda s, card_id=card_id: s.move(card_id))
+             for card_id in CARDS]
+
 # </OPERATORS>
 
 # <GOAL_TEST> (optional)
