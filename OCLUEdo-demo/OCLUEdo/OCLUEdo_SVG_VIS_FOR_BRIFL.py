@@ -1,0 +1,232 @@
+# Author:  S. Tanimoto
+# Purpose: test svgwrite with the new SOLUZION server and client
+# Created: 2020
+# Python version 3.x
+
+import svgwrite
+from OCLUEdo import * #State, 
+import OCLUEdo
+
+DEBUG = False
+W = 850 # Width of Vis. region
+SQW = W/8
+HALF_SQW = SQW/2
+H = 400
+THREE_QUARTER_SQW = 3*(HALF_SQW/2)
+IMAGE_WIDTH = 200 # Just a guess
+IMAGE_HEIGHT = 350 # "   "   "
+ROLE_COLORS = [
+    "rgb(255, 0, 0)", # scarlet
+    "rgb(0, 255, 0)", # green
+    "rgb(200, 200, 0)", # mustard
+    "rgb(100, 0, 150)", # plum
+    "rgb(0, 100, 230)", # peacock
+    "rgb(220, 220, 220)", # (off) white
+    "rgb(150, 150, 150)"] # no-role or observer: darker gray.
+    
+session = None
+def render_state(s, roles=None):
+    global session
+    #if DEBUG: print("In HalfClue_SVG_VIS_FOR_BRIFL.py, s = "+str(s))
+
+    session = get_session() # Need HOST and PORT info for accessing images.
+    dwg = svgwrite.Drawing(filename = "test-svgwrite.svg",
+                           id = "state_svg",  # Must match the id in the html template.
+                           size = (str(W)+"px", str(H)+"px"),
+                           debug=True)
+
+    if roles==None or roles==[]:
+      label = "This player doesn't have any role in the game."
+      x = 100; y = 100
+      dwg.add(dwg.text(label, insert = (x+HALF_SQW, y+THREE_QUARTER_SQW),
+                     text_anchor="middle",
+                     font_size="25",
+                     fill = "red"))
+    else:
+      yc = 100
+      # Instead of rendering all this player's roles, render just
+      # the vis for the role that is current or most recent.
+      # This info should be in the state.
+      if s.whose_subturn > -1 and s.suggestion_phase < 5:
+          active_role = s.whose_subturn
+      else:
+          active_role = s.whose_turn
+      if active_role in roles:
+          role = active_role
+      else:
+          role = roles[0]
+      #for role in roles:
+         # Background rectangle...
+      dwg.add(dwg.rect(insert = (0,0),
+                     size = (str(W)+"px", str(H)+"px"),
+                     stroke_width = "1",
+                     stroke = "black",
+                     fill = ROLE_COLORS[role]))
+
+         #y = 100
+      print("Rendering for role "+NAMES[role])
+
+
+      label = "This is for the role of "+NAMES[role]
+      x = 300; y = 100
+      dwg.add(dwg.text(label, insert = (x+HALF_SQW, y-THREE_QUARTER_SQW),
+                     text_anchor="middle",
+                     font_size="25",
+                     stroke = "black",
+                     fill = "red"))
+      if not s.suggestion==None and s.suggestion_phase==4:
+          sug = s.suggestion
+          who = s.whose_turn
+          suggester = NAMES[who]
+          label = suggester + " has suggested: "\
+              +NAMES[sug[1]]+" in the "+ROOMS[sug[0]]\
+              +" with the "+WEAPONS[sug[2]]+"."
+          x = 20; y = 130
+          dwg.add(dwg.text(label, insert = (x+HALF_SQW, y-THREE_QUARTER_SQW),
+                     text_anchor="start",
+                     font_size="18",
+                     stroke = "black",
+                     fill = "red"))
+          who = s.whose_subturn
+          responder = NAMES[who]
+          if who in roles: responder += " (you)"
+          label = "Can "+responder+" disprove it?"
+          x = 20; y = 160
+          dwg.add(dwg.text(label, insert = (x+HALF_SQW, y-THREE_QUARTER_SQW),
+                     text_anchor="start",
+                     font_size="18",
+                     stroke = "black",
+                     fill = "red"))
+          
+      else:
+          who = s.whose_turn
+          name = NAMES[who]
+          label = "It's "+name+"'s turn."
+          if who == role: label += " That's you!"
+          x = 20; y = 160
+          dwg.add(dwg.text(label, insert = (x+HALF_SQW, y-THREE_QUARTER_SQW),
+                     text_anchor="start",
+                     font_size="18",
+                     stroke = "black",
+                     fill = "red"))
+          
+      secret_info = ""        
+      secret_cards = PLAYER_HAND[role]
+      secret_info += "In the role of "+NAMES[role]+", the secret cards are: \n"
+      for card in secret_cards:
+           secret_info += str(card)+" "
+
+      #print(secret_info)
+         #label += secret_info
+         #x = 100; y = 100
+         #x = 100
+         #dwg.add(dwg.text(label, insert = (x+HALF_SQW, y+THREE_QUARTER_SQW),
+         #            text_anchor="middle",
+         #            font_size="25",
+         #            fill = "red"))
+
+         #y += 60
+      xc = 10
+      for card in secret_cards:
+           insert_card(dwg, card, xc, yc)
+           xc += 80
+      if s.refutation_card != None and role == s.whose_turn:
+           yc += 80
+           print("About to render a refutation card: "+str(s.refutation_card))
+           insert_card(dwg, s.refutation_card, 200, yc)
+      yc += 120
+      if not s.winner==None:
+          label = NAMES[s.whose_turn]+" wins!"
+          x = 20; y = 200
+          dwg.add(dwg.text(label, insert = (x+HALF_SQW, y-THREE_QUARTER_SQW),
+                text_anchor="start",
+                font_size="36",
+                stroke = "black",
+                fill = "red"))
+      elif (s.accusation_phase > 0) and not (role == s.whose_turn):
+          label = NAMES[s.whose_turn]+" is making an accusation!"
+          x = 20; y = 200
+          dwg.add(dwg.text(label, insert = (x+HALF_SQW, y-THREE_QUARTER_SQW),
+                text_anchor="start",
+                font_size="24",
+                stroke = "black",
+                fill = "red"))
+      if role in INACTIVE_PLAYERS:
+          label = NAMES[role]+" lost and is inactive, but needs to respond to suggestions."
+          x = 20; y = 320
+          dwg.add(dwg.text(label, insert = (x+HALF_SQW, y-THREE_QUARTER_SQW),
+                text_anchor="start",
+                font_size="14",
+                stroke = "black",
+                fill = "red"))
+
+    label1 = "Player locations: "
+    label2 = "  "
+    for i in range(6):
+          name = NAMES[i]
+          place_no = s.player_places[i]
+          place = POSSIBLE_PLAYER_SPOTS[place_no]
+          if i < 3:
+            label1 += name+": "+place + "; "
+          else:
+            label2 += name+": "+place + "; "
+    x = 20; y = 400
+    dwg.add(dwg.text(label1, insert = (x+HALF_SQW, y-THREE_QUARTER_SQW),
+                text_anchor="start",
+                font_size="12",
+                stroke = "black",
+                fill = "red"))
+    y += 16
+    dwg.add(dwg.text(label2, insert = (x+HALF_SQW, y-THREE_QUARTER_SQW),
+                text_anchor="start",
+                font_size="12",
+                stroke = "black",
+                fill = "red"))
+    svg_string = dwg.tostring()
+    #print("svg_string is "); print(svg_string)    return svg_string
+    return svg_string
+
+def insert_card(dwg, card, x, y):
+    filename = CARD_IMAGES[card]
+    url = "http://"+session['HOST']+":"+str(session['PORT'])+"/get_image/"+filename
+    scale_factor = 0.35
+    w = IMAGE_WIDTH*scale_factor
+    h = IMAGE_HEIGHT*scale_factor
+    image = dwg.image(url, insert=(x, y), size=(w, h))
+    dwg.add(image)
+
+CARD_IMAGES = \
+ {('p',0): "Miss_Scarlet.jpg",
+  ('p',1): "Mr_Green.jpg",
+  ('p',2): "Colonel_Mustard.jpg",
+  ('p',3): "Prof_Plum.jpg",
+  ('p',4): "Mrs_Peacock.jpg",
+  ('p',5): "Mrs_White.jpg",
+  ('r',0): "Lounge.jpg",
+  ('r',1): "Dining_Room.jpg",
+  ('r',2): "Kitchen.jpg",
+  ('r',3): "Ballroom.jpg",
+  ('r',4): "Conservatory.jpg",
+  ('r',5): "Billiard_Room.jpg",
+  ('r',6): "Library.jpg",
+  ('r',7): "Study.jpg",
+  ('r',8): "Hall.jpg",
+  ('w',0): "Candlestick.jpg",
+  ('w',1): "Knife.jpg",
+  ('w',2): "Lead_Pipe.jpg",
+  ('w',3): "Revolver.jpg",
+  ('w',4): "Rope.jpg",
+  ('w',5): "Wrench.jpg"\
+ }
+
+
+    
+if __name__ == '__main__':
+    DEBUG = True
+    PLAYER_HAND = [[('p',0),('r',3),('r',6),('p',4)]]
+    session = {'HOST': 'localhost', 'PORT':5000}
+    INITIAL_STATE = State()
+    print(INITIAL_STATE)
+    svg_string = render_state(INITIAL_STATE, roles=[0])
+    print("svg_string is: ")
+    print(svg_string)
