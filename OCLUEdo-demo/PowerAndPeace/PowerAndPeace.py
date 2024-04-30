@@ -195,6 +195,16 @@ class State:
     
     def new_turn(self):
         self.game_turn += 1
+        if self.game_turn == 4:
+            print("Doomsday has arrived!")
+            doomsday = random.randint(1, 4)
+        if self.game_turn == 7:
+            print("Doomsday has arrived!")
+            doomsday = random.randint(1, 4)
+        if self.game_turn == 10:
+            print("Doomsday has arrived!")
+            doomsday = random.randint(1, 4)
+
         for player in self.players:
             for card in self.players[player]['activeCards']:
                 CARD_EFFECTS[card](self)
