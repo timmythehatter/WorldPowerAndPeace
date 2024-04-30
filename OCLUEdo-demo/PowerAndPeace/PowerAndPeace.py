@@ -131,12 +131,20 @@ class State:
         # Produces a textual description of a state.
         # Might not be needed in normal operation with GUIs.
         txt = "Current Player: " + str(self.current_player) + "\n"
-        for p in self.players:
-            txt += "Player " + str(p) + ":\n"
-            txt += "Money: " + str(self.players[p]['money']) + "\n"
-            for other_player in self.players[p]:
-                if other_player != 'money':
-                    txt += "Player " + str(other_player) + ": " + str(self.players[p][other_player]) + "\n"
+        # for p in self.players:
+        #     txt += "Player " + str(p) + ":\n"
+        curr = self.players[self.current_player]
+        txt += "Money: " + str(curr['money']) + "\n"
+        for other_player in self.players[self.current_player]:
+            if other_player != 'money' and other_player != 'cards' and other_player != 'activeCards' and other_player != 'goalScore' and other_player != 'stability':
+                    txt += "Player " + str(other_player) + " rep: " + str(self.players[self.current_player][other_player]) + "\n"
+        txt += "Goal Score: " + str(curr['goalScore']) + "\n"
+        txt += "Stability: " + str(curr['stability']) + "\n"
+        txt += "Game Turn: " + str(self.game_turn) + "\n"
+        txt += "Clock: " + str(self.clock['Hour']) + ":" + str(self.clock['Minute']) + "\n"
+        txt += "Cards: " + str(curr['cards']) + "\n"
+        txt += "Active Cards: " + str(curr['activeCards']) + "\n"
+
         return txt
 
     def __hash__(self):
