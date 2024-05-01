@@ -100,6 +100,7 @@ def card_effect_humanitarian_aid(state):
 ## TODO: Randomize player effects 
 def event_ecologic_disaster(state):
     print("A series of ecological crises erupt all over the globe, causing tensions to rise!")
+    print("The doomsday clock advances 15 minutes.")
     state.clock['Minute'] += 15
     for player in state.players:
         if player == 1:
@@ -116,6 +117,36 @@ def event_ecologic_disaster(state):
         if player == 4:
             print("Wildfires sweep large swathes of your region, destroying your infrastructure. Lose an active card.")
             state.players[state.current_player]['activeCards'].pop()
+
+def event_political_assassination(state):
+    state.clock['Minute'] += 15
+    max_stability = -float('inf')
+    min_stability = float('inf')
+    max_stability_player = None
+    min_stability_player = None
+
+    for player in state.players:
+        if state.players[player]['stability'] > max_stability:
+            max_stability = state.players[player]['stability']
+            max_stability_player = player
+        elif state.players[player]['stability'] < min_stability:
+            min_stability = state.players[player]['stability']
+            min_stability_player = player
+    
+    state.players[max_stability_player]['stability'] = min_stability
+    state.players[min_stability_player]['stability'] = max_stability
+    for i in range(1, 5):
+        if i != min_stability_player:
+            state.players[min_stability_player][i] -= 30
+    
+    message = "Political instability in the " + state.factions[min_stability_player] + " have reached a boiling point.\n"
+    message += "Conspirators within the faction have conspired to demonstrate power by orchestarting an assassination of the leader of the " + state.factions[max_stability_player] + ".\n"
+    message += "As a consequence, political power in the " + state.factions[min_stability_player] + " has consolidated around the rebel conspirators, resulting in a more stable"
+    message += " balance of power, at the cost of the factions reputation around the world.\nMeanwhile, political turmoil and infighting racks the formerly stable " + state.factions[max_stability_player] + ".\n"
+    message += "The situation grows more perilous, and the doomsday clock advances 15 minutes closer to midnight."    
+
+            
+
 
 CARD_EFFECTS = {
     0: card_effect_treaty,
