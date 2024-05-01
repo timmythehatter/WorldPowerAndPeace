@@ -271,8 +271,7 @@ class State:
         if self.game_turn == 4:
             event_ecologic_disaster(self)
         if self.game_turn == 7:
-            print("Doomsday has arrived!")
-            doomsday = random.randint(1, 4)
+            event_political_assassination(self)
         if self.game_turn == 10:
             print("Doomsday has arrived!")
             doomsday = random.randint(1, 4)
