@@ -26,7 +26,10 @@ CARDS = {0: {'name': 'Treaty', 'cost': 10, 'effect': 'Adds 10 rep to a chosen pl
          2: {'name': 'Embassy', 'cost': 50, 'effect': 'Generates 10 rep lowest favored country per turn. Costs $50'},
          3: {'name': 'Trade', 'cost': 0, 'effect': 'Increases money by 10 times the number of active cards.'},
          4: {'name': 'Embargo', 'cost': 15, 'effect': 'Drastically reduces rep with a country and reduces their money. Costs $15'},
-         5: {'name': 'Election', 'cost': 25, 'effect': 'Increases factional goal score. Costs $25'}}
+         5: {'name': 'Election', 'cost': 25, 'effect': 'Increases factional goal score. Costs $25'},
+         6: {'name': 'Humanitarian Aid', 'cost': 15, 'effect': 'Increase the stability of another faction by 20. Costs $15'}}
+
+
 
 for player in PLAYERS.values():
     player['cards'] = random.sample(list(CARDS.keys()), k=3)
@@ -49,14 +52,19 @@ def card_effect_treaty(state):
 
 def card_effect_factory(state):
     state.players[state.current_player]['activeCards'].append(1)
-    state.players[state.current_player]['money'] += 10
     state.players[state.current_player]['goalScore'] += 1
     state.players[state.current_player]['stability'] += 10    
+
+def active_effect_factory(state):
+    print("Your factory produces 10 money.")
+    state.players[state.current_player]['money'] += 10
 
 def card_effect_embassy(state):
     # Generates 10 rep with lowest favored player per turn
     state.players[state.current_player]['activeCards'].append(2)
     state.players[state.current_player]['money'] -= 50
+    
+def active_effect_embassy(state):
     least_favored_player = min(
         (player for player in state.players[state.current_player] if player not in [state.current_player, 'money', 'cards', 'stability', 'goalScore', 'activeCards']),
         key=lambda x: state.players[state.current_player][x])
@@ -79,6 +87,35 @@ def card_effect_election(state):
     state.players[state.current_player]['stability'] -= 1
     state.players[state.current_player]['money'] -= 25
 
+def card_effect_humanitarian_aid(state):
+    chosen_player = int(input("Choose a player to send aid: "))
+    state.players[chosen_player]['stability'] += 20
+
+
+## TODO: Randomize player effects 
+def event_ecologic_disaster(state):
+    print("A series of ecological crises erupt all over the globe, causing tensions to rise!")
+    state.clock['Minute'] += 15
+    for player in state.players:
+        if player == 1:
+            print("Your region suffers from a serious famine, leading to political instability. Lose 10 stability.")
+            state.players[player]['stability'] -= 10
+        if player == 2:
+            print("A series of earthquakes tear through your region, you must rebuild. Lose 20 money.")
+            state.players[player]['money'] -= 20
+        if player == 3:
+            print("You are spared from immediate disaster, but you are focused on advancing your own interests. Lose 20 reputation with all faction.")
+            state.players[player][1] -= 20
+            state.players[player][2] -= 20
+            state.players[player][4] -= 20
+        if player == 4:
+            print("Wildfires destroy large swathes of your region, destroying your infrastructure. Lose an active card.")
+            state.players[state.current_player]['activeCards'].pop()
+
+
+
+
+
 CARD_EFFECTS = {
     0: card_effect_treaty,
     1: card_effect_factory,
@@ -86,6 +123,11 @@ CARD_EFFECTS = {
     3: card_effect_trade,
     4: card_effect_embargo,
     5: card_effect_election
+}
+
+ACTIVE_EFFECTS = {
+    1: active_effect_factory,
+    2: active_effect_embassy
 }
 
 
@@ -173,12 +215,10 @@ class State:
             print(e)
 
     def move(self, card):
-        '''Assuming it's legal to make the move, this computes
-       the new state resulting from moving the topmost disk
-       from the From peg to the To peg.'''
+        # Procedure for moving from one game state to next
+        CARD_EFFECTS[card](self)
+        self.players[self.current_player]['cards'].remove(card)
         news = self.copy()  # start with a deep copy.
-        news.players[self.current_player]['cards'].remove(card)
-        CARD_EFFECTS[card](news)
         news.current_player = (news.current_player % 4) + 1
         news.players[news.current_player]['cards'].append(1)
         if news.current_player == 1:
@@ -187,7 +227,7 @@ class State:
 
     def is_goal(self):
         '''WIP: Checks if the current state is a goal state.'''
-        return self.game_turn == 12 or self.players[self.current_player]['money'] >= 200
+        return self.game_turn == 12 or self.players[self.current_player]['money'] >= 2000
 
 
     def goal_message(self):
@@ -196,8 +236,7 @@ class State:
     def new_turn(self):
         self.game_turn += 1
         if self.game_turn == 4:
-            print("Doomsday has arrived!")
-            doomsday = random.randint(1, 4)
+            event_ecologic_disaster(self)
         if self.game_turn == 7:
             print("Doomsday has arrived!")
             doomsday = random.randint(1, 4)
@@ -207,7 +246,7 @@ class State:
 
         for player in self.players:
             for card in self.players[player]['activeCards']:
-                CARD_EFFECTS[card](self)
+                ACTIVE_EFFECTS[card](self)
 
 # </COMMON_CODE>
 
@@ -223,10 +262,10 @@ OPERATORS = [Operator("Play card " + CARDS[card_id]['name'] + " with effect " + 
 
 #<ROLES>
 ROLES = [
-    {'name': 'Player 1', 'min': 1, 'max': 1},
-    {'name': 'Player 2', 'min': 1, 'max': 1},
-    {'name': 'Player 3', 'min': 1, 'max': 1},
-    {'name': 'Player 4', 'min': 1, 'max': 1},
+    {'name': 'Black Sun Syndicate', 'min': 1, 'max': 1},
+    {'name': 'Scarlet Empire', 'min': 1, 'max': 1},
+    {'name': 'Sapphire League', 'min': 1, 'max': 1},
+    {'name': 'Viridian Concord', 'min': 1, 'max': 1},
     {'name': 'Observer', 'min': 0, 'max': 25}
 ]
 
