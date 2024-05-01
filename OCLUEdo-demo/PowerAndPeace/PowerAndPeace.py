@@ -21,6 +21,11 @@ PLAYERS = {1: {'money': 100, 2: 100, 3: 100, 4: 100, 'cards': [], 'stability': 1
            3: {'money': 100, 1: 100, 2: 100, 4: 100, 'cards': [], 'stability': 100, 'goalScore': 0, 'activeCards': []},
            4: {'money': 100, 1: 100, 2: 100, 3: 100, 'cards': [], 'stability': 100, 'goalScore': 0, 'activeCards': []}}
 
+FACTIONS = {1: 'Black Sun Syndicate (1)',
+            2: 'Scarlet Empire (2)',
+            3: 'Sapphire League (3)',
+            4: 'Viridian Concord (4)'}
+
 CARDS = {0: {'name': 'Treaty', 'cost': 10, 'effect': 'Adds 10 rep to a chosen player and removes 10 rep from their lowest rep player. Costs $10'},
          1: {'name': 'Factory', 'cost': 30, 'effect': 'Generates $10 per turn and adds 1 to goal score. Costs $30'},
          2: {'name': 'Embassy', 'cost': 50, 'effect': 'Generates 10 rep lowest favored country per turn. Costs $50'},
@@ -104,17 +109,13 @@ def event_ecologic_disaster(state):
             print("A series of earthquakes tear through your region, you must rebuild. Lose 20 money.")
             state.players[player]['money'] -= 20
         if player == 3:
-            print("You are spared from immediate disaster, but you are focused on advancing your own interests. Lose 20 reputation with all faction.")
+            print("Your advanced technology spares you from immediate disaster, but you are focused on advancing your own interests rather than helping others. Lose 20 reputation with all factions.")
             state.players[player][1] -= 20
             state.players[player][2] -= 20
             state.players[player][4] -= 20
         if player == 4:
-            print("Wildfires destroy large swathes of your region, destroying your infrastructure. Lose an active card.")
+            print("Wildfires sweep large swathes of your region, destroying your infrastructure. Lose an active card.")
             state.players[state.current_player]['activeCards'].pop()
-
-
-
-
 
 CARD_EFFECTS = {
     0: card_effect_treaty,
@@ -122,15 +123,14 @@ CARD_EFFECTS = {
     2: card_effect_embassy,
     3: card_effect_trade,
     4: card_effect_embargo,
-    5: card_effect_election
+    5: card_effect_election,
+    6: card_effect_humanitarian_aid
 }
 
 ACTIVE_EFFECTS = {
     1: active_effect_factory,
     2: active_effect_embassy
 }
-
-
 
 # </COMMON_DATA>
 
@@ -141,6 +141,7 @@ class State:
         self.players = PLAYERS
         self.cards = CARDS
         self.clock = CLOCK
+        self.factions = FACTIONS
         self.current_player = 1
 
         
@@ -172,7 +173,7 @@ class State:
     def __str__(self):
         # Produces a textual description of a state.
         # Might not be needed in normal operation with GUIs.
-        txt = "Current Player: " + str(self.current_player) + "\n"
+        txt = "Current Player: " + self.factions[self.current_player] + "\n"
         # for p in self.players:
         #     txt += "Player " + str(p) + ":\n"
         curr = self.players[self.current_player]
@@ -201,6 +202,7 @@ class State:
         new_state.cards = self.cards
         new_state.clock = self.clock
         new_state.game_turn = self.game_turn
+        new_state.factions = self.factions
 
         return new_state
 
