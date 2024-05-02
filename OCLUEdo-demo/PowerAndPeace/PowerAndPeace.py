@@ -16,10 +16,11 @@ PROBLEM_DESC = \
 
 CLOCK = {'Hour': 11 , 'Minute': 00}
 
-PLAYERS = {1: {'money': 100, 2: 100, 3: 100, 4: 100, 'cards': [], 'stability': 100, 'goalScore': 0, 'activeCards': []},
-           2: {'money': 100, 1: 100, 3: 100, 4: 100, 'cards': [], 'stability': 100, 'goalScore': 0, 'activeCards': []},
-           3: {'money': 100, 1: 100, 2: 100, 4: 100, 'cards': [], 'stability': 100, 'goalScore': 0, 'activeCards': []},
-           4: {'money': 100, 1: 100, 2: 100, 3: 100, 'cards': [], 'stability': 100, 'goalScore': 0, 'activeCards': []}}
+PLAYERS = {1: {'money': 100, 'reputation': {2: 100, 3: 100, 4: 100}, 'cards': [], 'stability': 100, 'goalScore': 0, 'activeCards': []},
+           2: {'money': 100, 'reputation': {1: 100, 3: 100, 4: 100}, 'cards': [], 'stability': 100, 'goalScore': 0, 'activeCards': []},
+           3: {'money': 100, 'reputation': {1: 100, 2: 100, 4: 100}, 'cards': [], 'stability': 100, 'goalScore': 0, 'activeCards': []},
+           4: {'money': 100, 'reputation': {1: 100, 2: 100, 3: 100}, 'cards': [], 'stability': 100, 'goalScore': 0, 'activeCards': []}}
+           
 
 FACTIONS = {1: 'Black Sun Syndicate (1)',
             2: 'Scarlet Empire (2)',
@@ -32,8 +33,9 @@ CARDS = {0: {'name': 'Treaty', 'cost': 10, 'effect': 'Adds 10 rep to a chosen pl
          3: {'name': 'Trade', 'cost': 0, 'effect': 'Increases money by 10 times the number of active cards.'},
          4: {'name': 'Embargo', 'cost': 15, 'effect': 'Drastically reduces rep with a country and reduces their money. Costs $15'},
          5: {'name': 'Election', 'cost': 25, 'effect': 'Increases factional goal score. Costs $25'},
-         6: {'name': 'Humanitarian Aid', 'cost': 15, 'effect': 'Increase the stability of another faction by 20. Costs $15'}}
-
+         6: {'name': 'Humanitarian Aid', 'cost': 15, 'effect': 'Increase the stability of another faction by 20. Costs $15'},
+         7: {'name': 'Cultural Exchange', 'cost': 25, 'effect': 'Increase reputation with all countries by 10. Costs $25'},
+         8: {'name': 'Sabotage', 'cost': 15, 'effect': 'Discards a card from a random opponent. Costs $15'}}
 
 
 for player in PLAYERS.values():
@@ -44,16 +46,24 @@ def card_effect_treaty(state):
     chosen_player = int(input("Choose a player to make a treaty with: "))
 
     # Find the least favored player from the perspective of the chosen player
-    least_favored_player = min(
-        (player for player in state.players[chosen_player] if player not in [state.current_player, 'money', 'cards', 'stability', 'goalScore', 'activeCards']),
-        key=lambda x: state.players[chosen_player][x])
+    # First we get the reputation list of current player to other players as rep_list.
+    # Then, we extract the least_favored_player_list of player(s) 
+    # with the lowest reputation from th current player.
+    # Lastly, we will choose a random player from the list as the least_favored_player.
+    rep_list = state.players[state.current_player]['reputation']
+    least_favored_player_list = [player for player, reputation in rep_list.items() if reputation == min(rep_list.values())]
+    least_favored_player = random.choice(least_favored_player_list)
+
     # Increase the reputation with the chosen player
-    state.players[state.current_player][chosen_player] += 10
-    state.players[chosen_player][state.current_player] += 10
+    state.players[state.current_player]['reputation'][chosen_player] += 10
+    state.players[chosen_player]['reputation'][state.current_player] += 10
 
     # Decrease the reputation with the least favored player
-    state.players[state.current_player][least_favored_player] -= 10
-    state.players[least_favored_player][state.current_player] -= 10
+    state.players[state.current_player]['reputation'][least_favored_player] -= 10
+    state.players[least_favored_player]['reputation'][state.current_player] -= 10
+
+    print('You have increased reputation with player ' + str(chosen_player) + ' and decreased reputation with player ' + str(least_favored_player))
+    state.players[state.current_player]['money'] -= 10
 
 def card_effect_factory(state):
     state.players[state.current_player]['activeCards'].append(1)
@@ -70,10 +80,12 @@ def card_effect_embassy(state):
     state.players[state.current_player]['money'] -= 50
     
 def active_effect_embassy(state):
-    least_favored_player = min(
-        (player for player in state.players[state.current_player] if player not in [state.current_player, 'money', 'cards', 'stability', 'goalScore', 'activeCards']),
-        key=lambda x: state.players[state.current_player][x])
-    state.players[state.current_player][least_favored_player] += 10
+    rep_list = state.players[state.current_player]['reputation']
+    least_favored_player_list = [player for player, reputation in rep_list.items() if reputation == min(rep_list.values())]
+    least_favored_player = random.choice(least_favored_player_list)
+
+    state.players[state.current_player]['reputation'][least_favored_player] += 10
+    print('You have added reputation with player ' + str(least_favored_player))
 
 def card_effect_trade(state):
     # Increases money by 10 times the number of active cards. Requires positive rep with a country.
@@ -83,7 +95,7 @@ def card_effect_embargo(state):
     # Drastically reduces rep with a country and reduces their money
     chosen_player = int(input("Choose a player to impose embargo: "))
     state.players[chosen_player]['money'] -= 20
-    state.players[state.current_player][chosen_player] -= 20
+    state.players[state.current_player]['reputation'][chosen_player] -= 20
     state.players[state.current_player]['stability'] -= 1
 
 def card_effect_election(state):
@@ -95,6 +107,23 @@ def card_effect_election(state):
 def card_effect_humanitarian_aid(state):
     chosen_player = int(input("Choose a player to send aid: "))
     state.players[chosen_player]['stability'] += 20
+
+def card_effect_cultural_exchange(state):
+    for player in state.players[state.current_player]['reputation']:
+        state.players[state.current_player]['reputation'][player] += 10
+        state.players[player]['reputation'][state.current_player] += 10
+    
+    state.players[state.current_player]['money'] -= 25
+    
+
+def card_effect_sabotage(state):
+    random_player = random.choice(list(state.players[state.current_player]['reputation'].keys()))
+    random_card = random.choice(state.players[random_player]['cards'])
+    state.players[random_player]['cards'].remove(random_card)
+
+    print('You have discarded card ' + str(random_card) + ' from player ' + str(random_player) + '!')
+    state.players[state.current_player]['money'] -= 15
+
 
 
 ## TODO: Randomize player effects 
@@ -155,7 +184,9 @@ CARD_EFFECTS = {
     3: card_effect_trade,
     4: card_effect_embargo,
     5: card_effect_election,
-    6: card_effect_humanitarian_aid
+    6: card_effect_humanitarian_aid,
+    7: card_effect_cultural_exchange,
+    8: card_effect_sabotage
 }
 
 ACTIVE_EFFECTS = {
