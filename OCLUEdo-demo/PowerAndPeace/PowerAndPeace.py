@@ -50,79 +50,79 @@ def card_effect_treaty(state):
     # Then, we extract the least_favored_player_list of player(s) 
     # with the lowest reputation from th current player.
     # Lastly, we will choose a random player from the list as the least_favored_player.
-    rep_list = state.players[state.current_player]['reputation']
+    rep_list = state.players[state.whose_turn]['reputation']
     least_favored_player_list = [player for player, reputation in rep_list.items() if reputation == min(rep_list.values())]
     least_favored_player = random.choice(least_favored_player_list)
 
     # Increase the reputation with the chosen player
-    state.players[state.current_player]['reputation'][chosen_player] += 10
-    state.players[chosen_player]['reputation'][state.current_player] += 10
+    state.players[state.whose_turn]['reputation'][chosen_player] += 10
+    state.players[chosen_player]['reputation'][state.whose_turn] += 10
 
     # Decrease the reputation with the least favored player
-    state.players[state.current_player]['reputation'][least_favored_player] -= 10
-    state.players[least_favored_player]['reputation'][state.current_player] -= 10
+    state.players[state.whose_turn]['reputation'][least_favored_player] -= 10
+    state.players[least_favored_player]['reputation'][state.whose_turn] -= 10
 
     print('You have increased reputation with player ' + str(chosen_player) + ' and decreased reputation with player ' + str(least_favored_player))
-    state.players[state.current_player]['money'] -= 10
+    state.players[state.whose_turn]['money'] -= 10
 
 def card_effect_factory(state):
-    state.players[state.current_player]['activeCards'].append(1)
-    state.players[state.current_player]['goalScore'] += 1
-    state.players[state.current_player]['stability'] += 10    
+    state.players[state.whose_turn]['activeCards'].append(1)
+    state.players[state.whose_turn]['goalScore'] += 1
+    state.players[state.whose_turn]['stability'] += 10    
 
 def active_effect_factory(state):
     print("Your factory produces 10 money.")
-    state.players[state.current_player]['money'] += 10
+    state.players[state.whose_turn]['money'] += 10
 
 def card_effect_embassy(state):
     # Generates 10 rep with lowest favored player per turn
-    state.players[state.current_player]['activeCards'].append(2)
-    state.players[state.current_player]['money'] -= 50
+    state.players[state.whose_turn]['activeCards'].append(2)
+    state.players[state.whose_turn]['money'] -= 50
     
 def active_effect_embassy(state):
-    rep_list = state.players[state.current_player]['reputation']
+    rep_list = state.players[state.whose_turn]['reputation']
     least_favored_player_list = [player for player, reputation in rep_list.items() if reputation == min(rep_list.values())]
     least_favored_player = random.choice(least_favored_player_list)
 
-    state.players[state.current_player]['reputation'][least_favored_player] += 10
+    state.players[state.whose_turn]['reputation'][least_favored_player] += 10
     print('You have added reputation with player ' + str(least_favored_player))
 
 def card_effect_trade(state):
     # Increases money by 10 times the number of active cards. Requires positive rep with a country.
-    state.players[state.current_player]['money'] += 10 * len(state.players[state.current_player]['activeCards'])
+    state.players[state.whose_turn]['money'] += 10 * len(state.players[state.whose_turn]['activeCards'])
 
 def card_effect_embargo(state):
     # Drastically reduces rep with a country and reduces their money
     chosen_player = int(input("Choose a player to impose embargo: "))
     state.players[chosen_player]['money'] -= 20
-    state.players[state.current_player]['reputation'][chosen_player] -= 20
-    state.players[state.current_player]['stability'] -= 1
+    state.players[state.whose_turn]['reputation'][chosen_player] -= 20
+    state.players[state.whose_turn]['stability'] -= 1
 
 def card_effect_election(state):
     # Increases factional goal score
-    state.players[state.current_player]['goalScore'] += 2
-    state.players[state.current_player]['stability'] -= 1
-    state.players[state.current_player]['money'] -= 25
+    state.players[state.whose_turn]['goalScore'] += 2
+    state.players[state.whose_turn]['stability'] -= 1
+    state.players[state.whose_turn]['money'] -= 25
 
 def card_effect_humanitarian_aid(state):
     chosen_player = int(input("Choose a player to send aid: "))
     state.players[chosen_player]['stability'] += 20
 
 def card_effect_cultural_exchange(state):
-    for player in state.players[state.current_player]['reputation']:
-        state.players[state.current_player]['reputation'][player] += 10
-        state.players[player]['reputation'][state.current_player] += 10
+    for player in state.players[state.whose_turn]['reputation']:
+        state.players[state.whose_turn]['reputation'][player] += 10
+        state.players[player]['reputation'][state.whose_turn] += 10
     
-    state.players[state.current_player]['money'] -= 25
+    state.players[state.whose_turn]['money'] -= 25
     
 
 def card_effect_sabotage(state):
-    random_player = random.choice(list(state.players[state.current_player]['reputation'].keys()))
+    random_player = random.choice(list(state.players[state.whose_turn]['reputation'].keys()))
     random_card = random.choice(state.players[random_player]['cards'])
     state.players[random_player]['cards'].remove(random_card)
 
     print('You have discarded card ' + str(random_card) + ' from player ' + str(random_player) + '!')
-    state.players[state.current_player]['money'] -= 15
+    state.players[state.whose_turn]['money'] -= 15
 
 
 
@@ -140,12 +140,12 @@ def event_ecologic_disaster(state):
             state.players[player]['money'] -= 20
         if player == 3:
             print("Your advanced technology spares you from immediate disaster, but you are focused on advancing your own interests rather than helping others. Lose 20 reputation with all factions.")
-            state.players[player][1] -= 20
-            state.players[player][2] -= 20
-            state.players[player][4] -= 20
+            state.players[player]['reputation'][1] -= 20
+            state.players[player]['reputation'][2] -= 20
+            state.players[player]['reputation'][4] -= 20
         if player == 4:
             print("Wildfires sweep large swathes of your region, destroying your infrastructure. Lose an active card.")
-            state.players[state.current_player]['activeCards'].pop()
+            state.players[state.whose_turn]['activeCards'].pop()
 
 def event_political_assassination(state):
     state.clock['Minute'] += 15
@@ -197,14 +197,14 @@ ACTIVE_EFFECTS = {
 # </COMMON_DATA>
 
 # <COMMON_CODE>
-class State:
+class State():
     def __init__(self):
         self.game_turn = 1
         self.players = PLAYERS
         self.cards = CARDS
         self.clock = CLOCK
         self.factions = FACTIONS
-        self.current_player = 1
+        self.whose_turn = 1
 
         
 
@@ -222,7 +222,7 @@ class State:
             for card in self.players[p]['activeCards']:
                 if card not in s2.players[p]['activeCards']:
                     return False
-            if self.current_player != s2.current_player:
+            if self.whose_turn != s2.whose_turn:
                 return False
             if self.game_turn != s2.game_turn:
                 return False
@@ -235,14 +235,14 @@ class State:
     def __str__(self):
         # Produces a textual description of a state.
         # Might not be needed in normal operation with GUIs.
-        txt = "Current Player: " + self.factions[self.current_player] + "\n"
+        txt = "Current Player: " + self.factions[self.whose_turn] + "\n"
         # for p in self.players:
         #     txt += "Player " + str(p) + ":\n"
-        curr = self.players[self.current_player]
+        curr = self.players[self.whose_turn]
         txt += "Money: " + str(curr['money']) + "\n"
-        for other_player in self.players[self.current_player]:
+        for other_player in self.players[self.whose_turn]:
             if other_player != 'money' and other_player != 'cards' and other_player != 'activeCards' and other_player != 'goalScore' and other_player != 'stability':
-                    txt += "Player " + str(other_player) + " rep: " + str(self.players[self.current_player][other_player]) + "\n"
+                    txt += "Player " + str(other_player) + " rep: " + str(self.players[self.whose_turn][other_player]) + "\n"
         txt += "Goal Score: " + str(curr['goalScore']) + "\n"
         txt += "Stability: " + str(curr['stability']) + "\n"
         txt += "Game Turn: " + str(self.game_turn) + "\n"
@@ -255,12 +255,12 @@ class State:
     def __hash__(self):
         return (self.__str__()).__hash__()
 
-    def copy(self):
+    def __copy__(self):
         # Performs an appropriately deep copy of a state,
         # for use by operators in creating new states.
         new_state = State()
         new_state.players = {p: self.players[p].copy() for p in self.players}
-        new_state.current_player = self.current_player
+        new_state.whose_turn = self.whose_turn
         new_state.cards = self.cards
         new_state.clock = self.clock
         new_state.game_turn = self.game_turn
@@ -271,7 +271,7 @@ class State:
     def can_move(self, card):
         '''Tests if the player has enough money to use the given card.'''
         try:
-            if card in self.players[self.current_player]['cards']:
+            if card in self.players[self.whose_turn]['cards']:
                return True
             else:
                return False
@@ -281,17 +281,17 @@ class State:
     def move(self, card):
         # Procedure for moving from one game state to next
         CARD_EFFECTS[card](self)
-        self.players[self.current_player]['cards'].remove(card)
-        news = self.copy()  # start with a deep copy.
-        news.current_player = (news.current_player % 4) + 1
-        news.players[news.current_player]['cards'].append(1)
-        if news.current_player == 1:
+        self.players[self.whose_turn]['cards'].remove(card)
+        news = self.__copy__()  # start with a deep copy.
+        news.whose_turn = (news.whose_turn % 4) + 1
+        news.players[news.whose_turn]['cards'].append(1)
+        if news.whose_turn == 1:
             news.new_turn()
         return news  # return new state
 
     def is_goal(self):
         '''WIP: Checks if the current state is a goal state.'''
-        return self.game_turn == 12 or self.players[self.current_player]['money'] >= 2000
+        return self.game_turn == 12 or self.players[self.whose_turn]['money'] >= 2000
 
 
     def goal_message(self):
@@ -311,17 +311,44 @@ class State:
             for card in self.players[player]['activeCards']:
                 ACTIVE_EFFECTS[card](self)
 
+SESSION = None
+def get_session():
+    return SESSION
+
 # </COMMON_CODE>
 
-# <OPERATORS>
 from soluzion import Basic_Operator as Operator
 
-OPERATORS = [Operator("Play card " + CARDS[card_id]['name'] + " with effect " + CARDS[card_id]['effect'],
-                      lambda s, card_id=card_id: s.can_move(card_id),
-                      lambda s, card_id=card_id: s.move(card_id))
-             for card_id in CARDS]
 
+#<OPERATORS>  #---------------------
+class Operator:
+  def __init__(self, name, precond, state_transf):
+    self.name = name
+    self.precond = precond
+    self.state_transf = state_transf
+
+  def is_applicable(self, s, role_number=0):
+    return self.precond(s, role=role_number)
+
+  def apply(self, s):
+    return self.state_transf(s)
+  
+op_play_card = [Operator(\
+    "Play card " + CARDS[card_id]['name'] + " with effect " + CARDS[card_id]['effect'],
+    lambda s, role=0, card_id=card_id: s.can_move(card_id),
+    lambda s, role=0, card_id=card_id: s.move(card_id))
+        for card_id in CARDS]
+  
+OPERATORS = op_play_card
 # </OPERATORS>
+
+#<INITIAL_STATE>
+INITIAL_STATE = None
+
+INITIAL_STATE = State()
+print(INITIAL_STATE)
+#</INITIAL_STATE>
+
 
 #<ROLES>
 ROLES = [

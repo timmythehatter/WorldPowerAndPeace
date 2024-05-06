@@ -4,8 +4,8 @@
 # Python version 3.x
 
 import svgwrite
+import base64
 from PowerAndPeace import *  # State,
-import PowerAndPeace
 
 DEBUG = False
 W = 850  # Width of Vis. region
@@ -15,15 +15,28 @@ H = 400
 THREE_QUARTER_SQW = 3 * (HALF_SQW / 2)
 
 ROLE_COLORS = [
-    "rgb(255, 0, 0)",  # scarlet
-    "rgb(0, 255, 0)",  # green
-    "rgb(200, 200, 0)",  # mustard
-    "rgb(100, 0, 150)",  # plum
-    "rgb(0, 100, 230)",  # peacock
+    "rgb(0, 0, 0)", #black
     "rgb(220, 220, 220)",  # (off) white
+    "rgb(255, 0, 0)",  # scarlet
+    "rgb(0, 100, 230)",  # peacock
+    "rgb(0, 255, 0)",  # green
     "rgb(150, 150, 150)"]  # no-role or observer: darker gray.
 
 session = None
+
+def load_image_as_base64(filepath):
+    """Load an image file and return its data URL"""
+    with open(filepath, "rb") as img_file:
+        img_data = base64.b64encode(img_file.read()).decode()
+        img_type = filepath.split('.')[-1]
+        return f"data:image/{img_type};base64,{img_data}"
+    
+def add_image_to_svg(dwg, image_path, position, size):
+    """Add an image to an SVG drawing at the specified position and size"""
+    image_data_url = load_image_as_base64(image_path)
+    dwg.add(dwg.image(image_data_url, insert=position, size=size))
+
+
 def render_state(s, roles=None):
     global session
     session = get_session()  # Need HOST and PORT info for accessing images.
@@ -45,21 +58,16 @@ def render_state(s, roles=None):
         # Instead of rendering all this player's roles, render just
         # the vis for the role that is current or most recent.
         # This info should be in the state.
-        if s.whose_subturn > -1 and s.suggestion_phase < 5:
-            active_role = s.whose_subturn
-        else:
-            active_role = s.whose_turn
-        if active_role in roles:
-            role = active_role
-        else:
-            role = roles[0]
+        
+        role = s.whose_turn
+        
         dwg.add(dwg.rect(insert=(0, 0),
                          size=(str(W) + "px", str(H) + "px"),
                          stroke_width="1",
                          stroke="black",
                          fill=ROLE_COLORS[role]))
 
-        label = "This is for the role of " + NAMES[role]
+        label = "This is for the role of " + FACTIONS[role]
         x = 300;
         y = 100
         dwg.add(dwg.text(label, insert=(x + HALF_SQW, y - THREE_QUARTER_SQW),
@@ -67,8 +75,24 @@ def render_state(s, roles=None):
                          font_size="25",
                          stroke="black",
                          fill="red"))
+        add_image_to_svg(dwg, PHASE1_VISUALS[role], (0,0), (str(W) + "px", str(H) + "px"))
+
     svg_string = dwg.tostring()
     return svg_string
+
+PLAYER_ICONS = {
+    1: "bss_icon.png",
+    2: "se_icon.png",
+    3: "sl_icon.png",
+    4: "vc_icon.png"
+}
+
+PHASE1_VISUALS = {
+    1: "bss_phase1.png",
+    2: "se_phase1.png",
+    3: "sl_phase1.png",
+    4: "vc_phase1.png",
+}
 
 if __name__ == '__main__':
     DEBUG = True
