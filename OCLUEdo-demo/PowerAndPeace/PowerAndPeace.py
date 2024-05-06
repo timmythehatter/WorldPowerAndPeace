@@ -35,7 +35,9 @@ CARDS = {0: {'name': 'Treaty', 'cost': 10, 'effect': 'Adds 10 rep to a chosen pl
          5: {'name': 'Election', 'cost': 25, 'effect': 'Increases factional goal score. Costs $25'},
          6: {'name': 'Humanitarian Aid', 'cost': 15, 'effect': 'Increase the stability of another faction by 20. Costs $15'},
          7: {'name': 'Cultural Exchange', 'cost': 25, 'effect': 'Increase reputation with all countries by 10. Costs $25'},
-         8: {'name': 'Sabotage', 'cost': 15, 'effect': 'Discards a card from a random opponent. Costs $15'}}
+         8: {'name': 'Sabotage', 'cost': 15, 'effect': 'Discards a card from a random opponent. Costs $15'},
+         9: {'name': 'Spy', 'cost': 20, 'effect': 'Checks the hand of an opponent and discard a card. Costs $20'},
+         10: {'name': 'Economic Boom', 'cost': 0, 'effect': 'Increase money by 30, decrease Reputation with all countries by 5.'}}
 
 
 for player in PLAYERS.values():
@@ -114,7 +116,6 @@ def card_effect_cultural_exchange(state):
         state.players[player]['reputation'][state.whose_turn] += 10
     
     state.players[state.whose_turn]['money'] -= 25
-    
 
 def card_effect_sabotage(state):
     random_player = random.choice(list(state.players[state.whose_turn]['reputation'].keys()))
@@ -124,9 +125,41 @@ def card_effect_sabotage(state):
     print('You have discarded card ' + str(random_card) + ' from player ' + str(random_player) + '!')
     state.players[state.whose_turn]['money'] -= 15
 
+def card_effect_spy(state):
+    while(True):
+        chosen_player = int(input('Choose an opponent to spy on: '))
 
+        if chosen_player == state.whose_turn:
+            print('Must choose an opponent!')
+        else:
+            break
 
-## TODO: Randomize player effects 
+    player_cards = state.players[chosen_player]['cards']
+    print('Player ' + str(chosen_player) + ' Current Cards: ')
+    for index, card in enumerate(player_cards):
+        print(str(index) + ': ' + str(CARDS[card])[1:-1])
+
+    while(True):
+        chosen_card = int(input('Choose a card to discard: '))
+
+        if not (0 <= chosen_card < len(player_cards)):
+            print('Must choose a card within the range!')
+        else:
+            break
+
+    discarded_card = state.players[chosen_player]['cards'][chosen_card]
+    state.players[chosen_player]['cards'].remove(player_cards[chosen_card])
+    print('You have discarded ' + str(CARDS[discarded_card]['name']) + ' from player ' + str(chosen_player) + '!')
+    state.players[state.whose_turn]['money'] -= 20
+
+def card_effect_economic_boom(state):
+    state.players[state.whose_turn]['money'] += 30
+
+    for player in state.players[state.whose_turn]['reputation']:
+        state.players[state.whose_turn]['reputation'][player] -= 5
+        state.players[player]['reputation'][state.whose_turn] -= 5
+
+## TODO: Randomize player effects Q
 def event_ecologic_disaster(state):
     print("A series of ecological crises erupt all over the globe, causing tensions to rise!")
     print("The doomsday clock advances 15 minutes.")
@@ -186,7 +219,9 @@ CARD_EFFECTS = {
     5: card_effect_election,
     6: card_effect_humanitarian_aid,
     7: card_effect_cultural_exchange,
-    8: card_effect_sabotage
+    8: card_effect_sabotage,
+    9: card_effect_spy,
+    10: card_effect_economic_boom
 }
 
 ACTIVE_EFFECTS = {
