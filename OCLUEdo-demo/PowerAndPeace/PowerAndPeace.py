@@ -37,7 +37,7 @@ CARDS = {0: {'name': 'Treaty', 'cost': 10, 'effect': 'Adds 10 rep to a chosen pl
          7: {'name': 'Cultural Exchange', 'cost': 25, 'effect': 'Increase reputation with all countries by 10. Costs $25'},
          8: {'name': 'Sabotage', 'cost': 15, 'effect': 'Discards a card from a random opponent. Costs $15'},
          9: {'name': 'Spy', 'cost': 20, 'effect': 'Checks the hand of an opponent and discard a card. Costs $20'},
-         10: {'name': 'Economic Boom', 'cost': 0, 'effect': 'Increase money by 30, decrease Reputation with all countries by 5.'}}
+         10: {'name': 'Economic Boom', 'cost': 0, 'effect': 'Increase $30 and stability by 20, decrease Reputation with all countries by 5.'}}
 
 
 for player in PLAYERS.values():
@@ -154,6 +154,7 @@ def card_effect_spy(state):
 
 def card_effect_economic_boom(state):
     state.players[state.whose_turn]['money'] += 30
+    state.players[state.whose_turn]['stability'] += 20
 
     for player in state.players[state.whose_turn]['reputation']:
         state.players[state.whose_turn]['reputation'][player] -= 5
