@@ -311,15 +311,15 @@ function show_applicable_operators(data) {
                            + '</span><br>\n'
        }
        $("#ops_div").html(OK_OPS_STRING)
-       $('.OK_OPS').on('click',
-         function(event) {
-           //alert('clicked');
-           var txt = $(event.target).text();
-           var cmd = txt.substr(0, txt.indexOf(':'));
-           send_command(cmd);
-         }
-       )
-       $('.OK_OPS').on('mouseover',(function(event){mouseOver(event)}));
+      //  $('.OK_OPS').on('click',
+      //    function(event) {
+      //      //alert('clicked');
+      //      var txt = $(event.target).text();
+      //      var cmd = txt.substr(0, txt.indexOf(':'));
+      //      send_command(cmd);
+      //    }
+      //  )
+      //  $('.OK_OPS').on('mouseover',(function(event){mouseOver(event)}));
        $('.OK_OPS').on('mouseout', (function(event){mouseOut(event)}));
    }
 
@@ -336,7 +336,7 @@ $(document).ready( function() {
   });
 })
 }
-//enable_op_numbers();
+enable_op_numbers();
 
 function hidehelp() {
  $("#general_commands").hide();
@@ -457,11 +457,11 @@ function toggle_about() {
 Currently applicable operators.
 (updated after the session starts and after any changes to the problem's current state)
      </div>
-    <!--
-     <div id="opnumberinput" style={'visibility:hidden'}>
-<input id="operatornumber" placeholder="enter operator number"></input>
-</div>
--->
+    
+      <div id="opnumberinput">
+        <input id="operatornumber" placeholder="enter operator number"></input>
+      </div>
+
       <div class="show_on_debug" id="server_dialog">
 	<p id="message" class="from_server">
 	  Welcome!

@@ -8,10 +8,10 @@ import base64
 from PowerAndPeace import *  # State,
 
 DEBUG = False
-W = 850  # Width of Vis. region
+W = 1250  # Width of Vis. region
 SQW = W / 8
 HALF_SQW = SQW / 2
-H = 400
+H = 700
 THREE_QUARTER_SQW = 3 * (HALF_SQW / 2)
 
 ROLE_COLORS = [
