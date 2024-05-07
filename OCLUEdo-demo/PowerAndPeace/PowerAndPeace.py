@@ -22,10 +22,10 @@ PLAYERS = {1: {'money': 100, 'reputation': {2: 100, 3: 100, 4: 100}, 'cards': []
            4: {'money': 100, 'reputation': {1: 100, 2: 100, 3: 100}, 'cards': [], 'stability': 100, 'goalScore': 0, 'activeCards': []}}
            
 
-FACTIONS = {1: 'Black Sun Syndicate (1)',
-            2: 'Scarlet Empire (2)',
-            3: 'Sapphire League (3)',
-            4: 'Viridian Concord (4)'}
+FACTIONS = {1: 'Black Sun Syndicate',
+            2: 'Scarlet Empire',
+            3: 'Sapphire League',
+            4: 'Viridian Concord'}
 
 CARDS = {0: {'name': 'Treaty', 'cost': 10, 'effect': 'Adds 10 rep to a chosen player and removes 10 rep from their lowest rep player. Costs $10'},
          1: {'name': 'Factory', 'cost': 30, 'effect': 'Generates $10 per turn and adds 1 to goal score. Costs $30'},
