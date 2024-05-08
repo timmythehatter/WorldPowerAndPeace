@@ -38,7 +38,7 @@ CARDS = {0: {'name': 'Treaty', 'cost': 10, 'effect': 'Adds 10 rep to a chosen pl
          8: {'name': 'Sabotage', 'cost': 15, 'effect': 'Discards a card from a random opponent. Costs $15'},
          9: {'name': 'Spy', 'cost': 20, 'effect': 'Checks the hand of an opponent and discard a card. Costs $20'},
          10: {'name': 'Economic Boom', 'cost': 0, 'effect': 'Increase $30 and stability by 20, decrease Reputation with all countries by 5.'},
-         11: {'name': 'Taxation', 'cost': 0, 'effect': 'Earn two times the turn number.'},
+         11: {'name': 'Inflation Tax', 'cost': 0, 'effect': 'Earn two times the turn number.'},
          12: {'name': 'Plunder', 'cost': 0, 'effect': 'Steal up to $10 from a chosen player. Lose 10 reputation with them.'},
          13: {'name': 'Double Agent', 'cost': 50, 'effect': 'Steal 1 goal achievement from a chosen player and lose 20 reputation with them. If chosen player has no achievements, nothing happens.'},
          14: {'name': 'Diplomat', 'cost': 0, 'effect': 'Earn $1 for every 20 reputation points you have.'}}
@@ -75,22 +75,23 @@ def card_effect_factory(state):
     state.players[state.whose_turn]['activeCards'].append(1)
     state.players[state.whose_turn]['goalScore'] += 1
     state.players[state.whose_turn]['stability'] += 10    
+    state.players[state.whose_turn]['money'] -= 30
 
-def active_effect_factory(state):
+def active_effect_factory(state, owner):
     print("Your factory produces 10 money.")
-    state.players[state.whose_turn]['money'] += 10
+    state.players[owner]['money'] += 10
 
 def card_effect_embassy(state):
     # Generates 10 rep with lowest favored player per turn
     state.players[state.whose_turn]['activeCards'].append(2)
     state.players[state.whose_turn]['money'] -= 50
     
-def active_effect_embassy(state):
-    rep_list = state.players[state.whose_turn]['reputation']
+def active_effect_embassy(state, owner):
+    rep_list = state.players[owner]['reputation']
     least_favored_player_list = [player for player, reputation in rep_list.items() if reputation == min(rep_list.values())]
     least_favored_player = random.choice(least_favored_player_list)
 
-    state.players[state.whose_turn]['reputation'][least_favored_player] += 10
+    state.players[owner]['reputation'][least_favored_player] += 10
     print('You have added reputation with player ' + str(least_favored_player))
 
 def card_effect_trade(state):
@@ -103,16 +104,18 @@ def card_effect_embargo(state):
     state.players[chosen_player]['money'] -= 20
     state.players[state.whose_turn]['reputation'][chosen_player] -= 20
     state.players[state.whose_turn]['stability'] -= 1
+    state.players[state.whose_turn]['money'] -= 15
 
 def card_effect_election(state):
     # Increases factional goal score
-    state.players[state.whose_turn]['goalScore'] += 2
+    state.players[state.whose_turn]['goalScore'] += 1
     state.players[state.whose_turn]['stability'] -= 1
     state.players[state.whose_turn]['money'] -= 25
 
 def card_effect_humanitarian_aid(state):
     chosen_player = int(input("Choose a player to send aid: "))
     state.players[chosen_player]['stability'] += 20
+    state.players[state.whose_turn]['money'] -= 15
 
 def card_effect_cultural_exchange(state):
     for player in state.players[state.whose_turn]['reputation']:
@@ -157,15 +160,15 @@ def card_effect_spy(state):
     state.players[state.whose_turn]['money'] -= 20
 
 def card_effect_economic_boom(state):
-    state.players[state.whose_turn]['money'] += 30
-    state.players[state.whose_turn]['stability'] += 20
+    state.players[state.whose_turn]['money'] += 20
+    state.players[state.whose_turn]['stability'] += 10
 
     for player in state.players[state.whose_turn]['reputation']:
         state.players[state.whose_turn]['reputation'][player] -= 5
         state.players[player]['reputation'][state.whose_turn] -= 5
         
-def card_effect_taxation(state):
-    state.players[state.whose_turn]['money'] += 2 * state.game_turn
+def card_effect_inflation_tax(state):
+    state.players[state.whose_turn]['money'] += 3 * state.game_turn
     
 def card_effect_plunder(state):
     chosen_player = int(input("Choose a player to plunder: "))
@@ -175,7 +178,8 @@ def card_effect_plunder(state):
     state.players[chosen_player]['reputation'][state.whose_turn] -= 10
 
     # take their money
-    loot = min(state.players[chosen_player]['money'], 10)
+    max = min(state.players[chosen_player]['money'], 15)
+    loot = random.randint(max)
     state.players[chosen_player]['money'] -= loot
     state.players[state.whose_turn]['money'] += loot
     
@@ -220,6 +224,7 @@ def clock_progression(state):
             if state.players[player]['reputation'][other] > 75:
                 minutes -= 0.5
     state.clock['Minute'] += minutes
+    ## TODO: if clock hits midnight, do something
 
 ## TODO: Randomize player effects Q
 def event_ecologic_disaster(state):
@@ -284,7 +289,7 @@ CARD_EFFECTS = {
     8: card_effect_sabotage,
     9: card_effect_spy,
     10: card_effect_economic_boom,
-    11: card_effect_taxation,
+    11: card_effect_inflation_tax,
     12: card_effect_plunder,
     13: card_effect_double_agent,
     14: card_effect_diplomat
@@ -411,7 +416,7 @@ class State():
 
         for player in self.players:
             for card in self.players[player]['activeCards']:
-                ACTIVE_EFFECTS[card](self)
+                ACTIVE_EFFECTS[card](self, player)
 
 SESSION = None
 def get_session():
