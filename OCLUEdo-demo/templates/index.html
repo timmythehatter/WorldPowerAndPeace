@@ -23,6 +23,17 @@
       #aboutdiv, #problem_desc, #rolesdiv {
 	  visibility: visible;
       }
+      #opnumberinput {
+        display: flex;
+        justify-content: center; /* Centers the input box horizontally */
+        width: 100%; /* Takes full width to allow centering of child */
+      }
+      #operatornumber {
+        width: 50%; /* Only takes up half of the width of its container */
+        font-size: 16px; /* Increases the font size, optional if the height is already fine */
+        padding: 10px; /* Padding to increase the height a bit */
+        margin: 5px 0; /* Adds vertical spacing */
+      }
       </style>
 
 <link rel="shortcut icon" href="{{url_for('get_image', image_filename='favicon.png')}}">
@@ -446,7 +457,7 @@ function toggle_about() {
   <p id = "stats">
   </p>
 </div>
-<div id="state_vis" width="100%" height="100%">
+<div id="state_vis">
     <svg id="state_svg" width="100%" height="100%">
        </svg>
 </div>
@@ -457,7 +468,12 @@ Currently applicable operators.
      </div>
     
       <div id="opnumberinput">
-        <input id="operatornumber" placeholder="enter operator number"></input>
+        <input id="operatornumber" placeholder="enter operator number and chosen player if applicable"></input>
+      </div>
+      <div id="textbox_explanation">
+        First enter the operator number identified in the list then, if needed, follow with a space and the player number you wish to play
+        your card against.<br>
+        Player numbers are as follows: Black Sun Syndicate, 1; Scarlet Empire, 2; Sapphire League, 3; Viridian Concord, 4
       </div>
 
       <div class="show_on_debug" id="server_dialog">
