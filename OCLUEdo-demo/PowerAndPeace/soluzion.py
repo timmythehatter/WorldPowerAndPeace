@@ -59,12 +59,12 @@ class Basic_Operator:
     def is_applicable(self, s):
         return self.precond(s)
 
-    def apply(self, s):
-        if self.params:
-            args = GET_ARGS(self)
-            return self.transf(s, args)
-        else:
-            return self.transf(s)
+    def apply(self, s, arg=-1):
+        # if self.params:
+        #     args = GET_ARGS(self)
+        #     return self.transf(s, args)
+        # else:
+        return self.transf(s, arg)
 
 def GET_ARGS(op):
     pass  # The client will implement and overwrite this.

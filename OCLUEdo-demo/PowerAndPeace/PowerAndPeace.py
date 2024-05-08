@@ -44,16 +44,16 @@ for player in PLAYERS.values():
     player['cards'] = random.sample(list(CARDS.keys()), k=3)
 
 
-def card_effect_treaty(state):
-    chosen_player = int(input("Choose a player to make a treaty with: "))
+def card_effect_treaty(state, player):
+    chosen_player = player
 
     # Find the least favored player from the perspective of the chosen player
     # First we get the reputation list of current player to other players as rep_list.
     # Then, we extract the least_favored_player_list of player(s) 
     # with the lowest reputation from th current player.
     # Lastly, we will choose a random player from the list as the least_favored_player.
-    rep_list = state.players[state.whose_turn]['reputation']
-    least_favored_player_list = [player for player, reputation in rep_list.items() if reputation == min(rep_list.values())]
+    rep_list = state.players[chosen_player]['reputation']
+    least_favored_player_list = [player for player, reputation in rep_list.items() if reputation == min(rep_list.values()) and player != state.whose_turn]
     least_favored_player = random.choice(least_favored_player_list)
 
     # Increase the reputation with the chosen player
@@ -67,16 +67,16 @@ def card_effect_treaty(state):
     print('You have increased reputation with player ' + str(chosen_player) + ' and decreased reputation with player ' + str(least_favored_player))
     state.players[state.whose_turn]['money'] -= 10
 
-def card_effect_factory(state):
+def card_effect_factory(state, player):
     state.players[state.whose_turn]['activeCards'].append(1)
     state.players[state.whose_turn]['goalScore'] += 1
-    state.players[state.whose_turn]['stability'] += 10    
+    state.players[state.whose_turn]['stability'] += 10
 
 def active_effect_factory(state):
     print("Your factory produces 10 money.")
     state.players[state.whose_turn]['money'] += 10
 
-def card_effect_embassy(state):
+def card_effect_embassy(state, player):
     # Generates 10 rep with lowest favored player per turn
     state.players[state.whose_turn]['activeCards'].append(2)
     state.players[state.whose_turn]['money'] -= 50
@@ -89,35 +89,35 @@ def active_effect_embassy(state):
     state.players[state.whose_turn]['reputation'][least_favored_player] += 10
     print('You have added reputation with player ' + str(least_favored_player))
 
-def card_effect_trade(state):
+def card_effect_trade(state, player):
     # Increases money by 10 times the number of active cards. Requires positive rep with a country.
     state.players[state.whose_turn]['money'] += 10 * len(state.players[state.whose_turn]['activeCards'])
 
-def card_effect_embargo(state):
+def card_effect_embargo(state, player):
     # Drastically reduces rep with a country and reduces their money
     chosen_player = int(input("Choose a player to impose embargo: "))
     state.players[chosen_player]['money'] -= 20
     state.players[state.whose_turn]['reputation'][chosen_player] -= 20
     state.players[state.whose_turn]['stability'] -= 1
 
-def card_effect_election(state):
+def card_effect_election(state, player):
     # Increases factional goal score
     state.players[state.whose_turn]['goalScore'] += 2
     state.players[state.whose_turn]['stability'] -= 1
     state.players[state.whose_turn]['money'] -= 25
 
-def card_effect_humanitarian_aid(state):
+def card_effect_humanitarian_aid(state, player):
     chosen_player = int(input("Choose a player to send aid: "))
     state.players[chosen_player]['stability'] += 20
 
-def card_effect_cultural_exchange(state):
+def card_effect_cultural_exchange(state, player):
     for player in state.players[state.whose_turn]['reputation']:
         state.players[state.whose_turn]['reputation'][player] += 10
         state.players[player]['reputation'][state.whose_turn] += 10
     
     state.players[state.whose_turn]['money'] -= 25
 
-def card_effect_sabotage(state):
+def card_effect_sabotage(state, player):
     random_player = random.choice(list(state.players[state.whose_turn]['reputation'].keys()))
     random_card = random.choice(state.players[random_player]['cards'])
     state.players[random_player]['cards'].remove(random_card)
@@ -125,7 +125,7 @@ def card_effect_sabotage(state):
     print('You have discarded card ' + str(random_card) + ' from player ' + str(random_player) + '!')
     state.players[state.whose_turn]['money'] -= 15
 
-def card_effect_spy(state):
+def card_effect_spy(state, player):
     while(True):
         chosen_player = int(input('Choose an opponent to spy on: '))
 
@@ -152,7 +152,7 @@ def card_effect_spy(state):
     print('You have discarded ' + str(CARDS[discarded_card]['name']) + ' from player ' + str(chosen_player) + '!')
     state.players[state.whose_turn]['money'] -= 20
 
-def card_effect_economic_boom(state):
+def card_effect_economic_boom(state, player):
     state.players[state.whose_turn]['money'] += 30
     state.players[state.whose_turn]['stability'] += 20
 
@@ -314,9 +314,10 @@ class State():
         except (Exception) as e:
             print(e)
 
-    def move(self, card):
+    def move(self, card, player):
         # Procedure for moving from one game state to next
-        CARD_EFFECTS[card](self)
+        print(player)
+        CARD_EFFECTS[card](self, player)
         self.players[self.whose_turn]['cards'].remove(card)
         news = self.__copy__()  # start with a deep copy.
         news.whose_turn = (news.whose_turn % 4) + 1
@@ -353,26 +354,35 @@ def get_session():
 
 # </COMMON_CODE>
 
-from soluzion import Basic_Operator as Operator
+from soluzion import Basic_Operator
 
 
 #<OPERATORS>  #---------------------
-class Operator:
+class Operator(Basic_Operator):
   def __init__(self, name, precond, state_transf):
-    self.name = name
-    self.precond = precond
-    self.state_transf = state_transf
+    super().__init__(
+        name = name,
+        precond = precond,
+        transf = state_transf,
+        params=[
+            {
+                "name": "Chosen Player",
+                "type": "int",
+            }
+        ],
+    )
 
   def is_applicable(self, s, role_number=0):
     return self.precond(s, role=role_number)
 
-  def apply(self, s):
-    return self.state_transf(s)
   
-op_play_card = [Operator(\
+
+  
+op_play_card = [Operator(
     "Play card " + CARDS[card_id]['name'] + " with effect " + CARDS[card_id]['effect'],
     lambda s, role=0, card_id=card_id: s.can_move(card_id),
-    lambda s, role=0, card_id=card_id: s.move(card_id))
+    lambda s, params, card_id=card_id: s.move(card_id, params)
+    )
         for card_id in CARDS]
   
 OPERATORS = op_play_card
