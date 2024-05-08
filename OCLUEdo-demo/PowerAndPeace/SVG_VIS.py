@@ -8,16 +8,16 @@ import base64
 from PowerAndPeace import *  # State,
 
 DEBUG = False
-W = 850  # Width of Vis. region
+W = 1275  # Width of Vis. region
 SQW = W / 8
 HALF_SQW = SQW / 2
-H = 400
+H = 600
 THREE_QUARTER_SQW = 3 * (HALF_SQW / 2)
 
 ROLE_COLORS = [
     "rgb(0, 0, 0)", #black
-    "rgb(13, 10, 11)",  # BSS
-    "rgb(113, 11, 9)",  # SE
+    "rgb(37, 31, 33)",  # BSS
+    "rgb(133, 44, 43)",  # SE
     "rgb(124, 191, 203)",  # SL
     "rgb(119, 197, 131)",  # VC
     "rgb(150, 150, 150)"]  # no-role or observer: darker gray.
@@ -105,7 +105,7 @@ def render_state(s, roles=None):
 
     for i, line in enumerate(role_state):
         dy_value = f"{float(line_height[:-2]) * i}em"
-        dwg.add(dwg.text(line, insert=(start_x, start_y), text_anchor="start", font_size="14", dy=[dy_value], stroke=ROLE_TEXT[role], fill=ROLE_TEXT[role]))
+        dwg.add(dwg.text(line, insert=(start_x, start_y), text_anchor="start", font_size="10", dy=[dy_value], stroke=ROLE_TEXT[role], fill=ROLE_TEXT[role]))
 
     add_image_to_svg(dwg, PLAYER_ICONS[other_players[0]], ("-3%", "23%"), ("15%", "15%"))
 
@@ -114,7 +114,7 @@ def render_state(s, roles=None):
 
     for i, line in enumerate(player_state_1):
         dy_value = f"{float(line_height[:-2]) * i}em"
-        dwg.add(dwg.text(line, insert=(start_x, start_y), text_anchor="start", font_size="12", dy=[dy_value], stroke=ROLE_TEXT[role], fill=ROLE_TEXT[role]))
+        dwg.add(dwg.text(line, insert=(start_x, start_y), text_anchor="start", font_size="10", dy=[dy_value], stroke=ROLE_TEXT[role], fill=ROLE_TEXT[role]))
 
     add_image_to_svg(dwg, PLAYER_ICONS[other_players[1]], ("-3%", "39%"), ("15%", "15%"))
 
@@ -123,7 +123,7 @@ def render_state(s, roles=None):
 
     for i, line in enumerate(player_state_2):
         dy_value = f"{float(line_height[:-2]) * i}em"
-        dwg.add(dwg.text(line, insert=(start_x, start_y), text_anchor="start", font_size="12", dy=[dy_value], stroke=ROLE_TEXT[role], fill=ROLE_TEXT[role]))
+        dwg.add(dwg.text(line, insert=(start_x, start_y), text_anchor="start", font_size="10", dy=[dy_value], stroke=ROLE_TEXT[role], fill=ROLE_TEXT[role]))
 
     add_image_to_svg(dwg, PLAYER_ICONS[other_players[2]], ("-3%", "55%"), ("15%", "15%"))
 
@@ -132,9 +132,26 @@ def render_state(s, roles=None):
 
     for i, line in enumerate(player_state_3):
         dy_value = f"{float(line_height[:-2]) * i}em"
-        dwg.add(dwg.text(line, insert=(start_x, start_y), text_anchor="start", font_size="12", dy=[dy_value], stroke=ROLE_TEXT[role], fill=ROLE_TEXT[role]))
+        dwg.add(dwg.text(line, insert=(start_x, start_y), text_anchor="start", font_size="10", dy=[dy_value], stroke=ROLE_TEXT[role], fill=ROLE_TEXT[role]))
         
-    add_image_to_svg(dwg, PHASE1_VISUALS[role], ("32%", "2%"), ("70%", "70%"))
+    if s.phase == 1:
+        add_image_to_svg(dwg, PHASE1_VISUALS[role], ("32%", "2%"), ("70%", "70%"))
+    elif s.phase == 2:
+        add_image_to_svg(dwg, PHASE2_VISUALS[role], ("32%", "2%"), ("70%", "70%"))
+    elif s.phase == 3:
+        add_image_to_svg(dwg, PHASE3_VISUALS[role], ("32%", "2%"), ("70%", "70%"))
+    else:
+        add_image_to_svg(dwg, PHASE4_VISUALS[role], ("32%", "2%"), ("70%", "70%"))
+
+    dwg.add(dwg.rect(insert=("38%", "75%"),
+                     size=("58%", "22%"),
+                     stroke_width="2",
+                     stroke="black",
+                     fill="white"))
+    
+    for i in range(0, len(s.players[role]['cards'])):
+        offset = 33 + 10 * i
+        add_image_to_svg(dwg, FACTION_CARDS[role], (str(offset) + "%", "75.5%"), ("20%", "20%"))
 
     svg_string = dwg.tostring()
     return svg_string
@@ -151,6 +168,34 @@ PHASE1_VISUALS = {
     2: "se_phase1.png",
     3: "sl_phase1.png",
     4: "vc_phase1.png",
+}
+
+PHASE2_VISUALS = {
+    1: "bss_phase2.png",
+    2: "se_phase2.png",
+    3: "sl_phase2.png",
+    4: "vc_phase2.png",
+}
+
+PHASE3_VISUALS = {
+    1: "bss_phase3.png",
+    2: "se_phase3.png",
+    3: "sl_phase3.png",
+    4: "vc_phase3.png",
+}
+
+PHASE4_VISUALS = {
+    1: "bss_phase4.png",
+    2: "se_phase4.png",
+    3: "sl_phase4.png",
+    4: "vc_phase4.png",
+}
+
+FACTION_CARDS = {
+    1: "bss_back.png",
+    2: "se_back.png",
+    3: "sl_back.png",
+    4: "vc_back.png"
 }
 
 if __name__ == '__main__':
