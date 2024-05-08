@@ -156,7 +156,7 @@ def render_state(s, roles=None):
     clock_position_x = f"{W - 100}px"  # Adjust this value to position it right with a margin
     clock_position_y = f"{20}px"  # Similarly adjust this to position from the bottom
     dwg.add(dwg.text(clock_text, insert=(clock_position_x, clock_position_y),
-                     text_anchor="end", font_size="16px", fill="black"))
+                     text_anchor="end", font_size="16px", fill=ROLE_TEXT[role]))
     
     # Display up to 5 most recent events
     num_events = len(s.events)
@@ -171,7 +171,7 @@ def render_state(s, roles=None):
     for i, event in enumerate(reversed(events_to_display)):
         dy_value = f"{float(line_height[:-2]) * i}em"
         dwg.add(dwg.text(event, insert=(events_start_x, events_start_y), text_anchor="start",
-                         font_size="12", dy=[dy_value], stroke="white", fill="white"))
+                         font_size="8", dy=[dy_value], fill=ROLE_TEXT[role]))
 
     svg_string = dwg.tostring()
     return svg_string

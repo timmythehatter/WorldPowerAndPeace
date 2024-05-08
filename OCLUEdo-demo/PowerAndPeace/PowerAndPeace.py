@@ -152,6 +152,7 @@ def card_effect_cultural_exchange(state, player):
     
     state.players[state.whose_turn]['money'] -= 25
     state.events.append(FACTIONS[state.whose_turn] + " just engaged in a cultural exchange.")
+    return True
 
 def card_effect_sabotage(state, player):
     random_player = random.choice(list(state.players[state.whose_turn]['reputation'].keys()))
@@ -271,18 +272,18 @@ def event_ecologic_disaster(state):
     state.clock['Minute'] += 15
     for player in state.players:
         if player == 1:
-            print("Your region suffers from a serious famine, leading to political instability. Lose 10 stability.")
+            state.events.append("The Black Sun Syndicate suffers from a serious famine, leading to political instability. Lose 10 stability.")
             state.players[player]['stability'] -= 10
         if player == 2:
-            print("A series of earthquakes tear through your region, you must rebuild. Lose 20 money.")
+            state.events.append("A series of earthquakes tear through the Scarlet Empire, you must rebuild. Lose 20 money.")
             state.players[player]['money'] -= 20
         if player == 3:
-            print("A rogue cyber terrorist organization launches an attack and steals sensitive information. Lose 20 reputation with all factions.")
+            state.events.append("A rogue cyber terrorist organization launches an attack and steals sensitive information from the Sapphire League. Lose 20 reputation with all factions.")
             state.players[player]['reputation'][1] -= 20
             state.players[player]['reputation'][2] -= 20
             state.players[player]['reputation'][4] -= 20
         if player == 4:
-            print("Wildfires sweep large swathes of your region, destroying your infrastructure. Lose an active card.")
+            state.events.append("Wildfires sweep large swathes of the Viridian Concord, destroying your infrastructure. Lose an active card.")
             state.players[state.whose_turn]['activeCards'].pop()
 
 def event_political_assassination(state):
@@ -311,6 +312,7 @@ def event_political_assassination(state):
     message += "As a consequence, political power in the " + state.factions[min_stability_player] + " has consolidated around the rebel conspirators, resulting in a more stable"
     message += " balance of power, at the cost of the factions reputation around the world.\nMeanwhile, political turmoil and infighting racks the formerly stable " + state.factions[max_stability_player] + ".\n"
     message += "The situation grows more perilous, and the doomsday clock advances 15 minutes closer to midnight."    
+    state.events.append(message)
 
             
 
