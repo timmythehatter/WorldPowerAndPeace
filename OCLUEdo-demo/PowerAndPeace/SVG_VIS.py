@@ -135,11 +135,11 @@ def render_state(s, roles=None):
         
     add_image_to_svg(dwg, PHASE1_VISUALS[role], ("32%", "2%"), ("70%", "70%"))
 
-    clock_text = f"TIME: {s.clock['Hour']:02}:{s.clock['Minute']:02}"
+    clock_text = f"MINUTES TO MIDNIGHT: {60 - s.clock['Minute']:02}"
     clock_position_x = f"{W - 100}px"  # Adjust this value to position it right with a margin
-    clock_position_y = f"{H - 20}px"  # Similarly adjust this to position from the bottom
+    clock_position_y = f"{20}px"  # Similarly adjust this to position from the bottom
     dwg.add(dwg.text(clock_text, insert=(clock_position_x, clock_position_y),
-                     text_anchor="end", font_size="16px", fill="white"))
+                     text_anchor="end", font_size="16px", fill="black"))
     
     # Display up to 5 most recent events
     num_events = len(s.events)
