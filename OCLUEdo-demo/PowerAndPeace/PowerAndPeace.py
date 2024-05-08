@@ -152,6 +152,7 @@ def card_effect_cultural_exchange(state, player):
     
     state.players[state.whose_turn]['money'] -= 25
     state.events.append(FACTIONS[state.whose_turn] + " just engaged in a cultural exchange.")
+    return True
 
 def card_effect_sabotage(state, player):
     random_player = random.choice(list(state.players[state.whose_turn]['reputation'].keys()))
