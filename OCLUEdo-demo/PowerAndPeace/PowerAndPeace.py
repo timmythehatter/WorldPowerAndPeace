@@ -100,7 +100,7 @@ def card_effect_trade(state, player):
 
 def card_effect_embargo(state, player):
     # Drastically reduces rep with a country and reduces their money
-    chosen_player = int(input("Choose a player to impose embargo: "))
+    chosen_player = player
     state.players[chosen_player]['money'] -= 20
     state.players[state.whose_turn]['reputation'][chosen_player] -= 20
     state.players[state.whose_turn]['stability'] -= 1
@@ -312,6 +312,7 @@ class State():
         self.factions = FACTIONS
         self.whose_turn = 1
         self.phase = 1
+        self.events = []
 
         
 
@@ -390,15 +391,18 @@ class State():
 
     def move(self, card, player):
         # Procedure for moving from one game state to next
-        print(player)
-        CARD_EFFECTS[card](self, player)
-        self.players[self.whose_turn]['cards'].remove(card)
-        news = self.__copy__()  # start with a deep copy.
-        news.whose_turn = (news.whose_turn % 4) + 1
-        news.players[news.whose_turn]['cards'].append(1)
-        if news.whose_turn == 1:
-            news.new_turn()
-        return news  # return new state
+        if card not in self.players[self.whose_turn]['cards']:
+            self.events.append("Player does not have that card. Play a card you have")
+            return self
+        else:
+            CARD_EFFECTS[card](self, player)
+            self.players[self.whose_turn]['cards'].remove(card)
+            news = self.__copy__()  # start with a deep copy.
+            news.whose_turn = (news.whose_turn % 4) + 1
+            news.players[news.whose_turn]['cards'].append(1)
+            if news.whose_turn == 1:
+                news.new_turn()
+            return news  # return new state
 
     def is_goal(self):
         '''WIP: Checks if the current state is a goal state.'''
