@@ -55,7 +55,6 @@ def render_state(s, roles=None):
                             viewBox=f"0 0 {W} {H}",
                             debug=False)
 
-
     role = s.whose_turn
     role_state = [
         f"CURRENT PLAYER: {FACTIONS[role]}",
@@ -135,6 +134,27 @@ def render_state(s, roles=None):
         dwg.add(dwg.text(line, insert=(start_x, start_y), text_anchor="start", font_size="12", dy=[dy_value], stroke=ROLE_TEXT[role], fill=ROLE_TEXT[role]))
         
     add_image_to_svg(dwg, PHASE1_VISUALS[role], ("32%", "2%"), ("70%", "70%"))
+
+    clock_text = f"TIME: {s.clock['Hour']:02}:{s.clock['Minute']:02}"
+    clock_position_x = f"{W - 100}px"  # Adjust this value to position it right with a margin
+    clock_position_y = f"{H - 20}px"  # Similarly adjust this to position from the bottom
+    dwg.add(dwg.text(clock_text, insert=(clock_position_x, clock_position_y),
+                     text_anchor="end", font_size="16px", fill="white"))
+    
+    # Display up to 5 most recent events
+    num_events = len(s.events)
+    events_to_display = s.events[max(0, num_events - 5):num_events]  # Last 5 or fewer
+    
+    # Calculate start position for events text
+    events_start_x = "1%"
+    events_start_y = f"{H - 100}px"  # Adjust this value as needed to fit within your SVG dimensions
+    line_height = "1.1em"
+    
+    # Add events text to the SVG
+    for i, event in enumerate(reversed(events_to_display)):
+        dy_value = f"{float(line_height[:-2]) * i}em"
+        dwg.add(dwg.text(event, insert=(events_start_x, events_start_y), text_anchor="start",
+                         font_size="12", dy=[dy_value], stroke="white", fill="white"))
 
     svg_string = dwg.tostring()
     return svg_string
