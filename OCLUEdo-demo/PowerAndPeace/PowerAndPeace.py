@@ -277,7 +277,7 @@ def event_ecologic_disaster(state):
             print("A series of earthquakes tear through your region, you must rebuild. Lose 20 money.")
             state.players[player]['money'] -= 20
         if player == 3:
-            print("Your advanced technology spares you from immediate disaster, but you are focused on advancing your own interests rather than helping others. Lose 20 reputation with all factions.")
+            print("A rogue cyber terrorist organization launches an attack and steals sensitive information. Lose 20 reputation with all factions.")
             state.players[player]['reputation'][1] -= 20
             state.players[player]['reputation'][2] -= 20
             state.players[player]['reputation'][4] -= 20
@@ -304,7 +304,7 @@ def event_political_assassination(state):
     state.players[min_stability_player]['stability'] = max_stability
     for i in range(1, 5):
         if i != min_stability_player:
-            state.players[min_stability_player][i] -= 30
+            state.players[min_stability_player]['reputation'][i] -= 30
     
     message = "Political instability in the " + state.factions[min_stability_player] + " have reached a boiling point.\n"
     message += "Conspirators within the faction have conspired to demonstrate power by orchestarting an assassination of the leader of the " + state.factions[max_stability_player] + ".\n"
@@ -349,6 +349,7 @@ class State():
         self.clock = CLOCK
         self.factions = FACTIONS
         self.whose_turn = 1
+        self.phase = 1
         self.events = []
 
         
@@ -375,6 +376,8 @@ class State():
                 return False
             if self.cards != s2.cards:
                 return False 
+            if self.phase != s2.phase:
+                return False
         return True
 
     def __str__(self):
@@ -411,6 +414,7 @@ class State():
         new_state.game_turn = self.game_turn
         new_state.factions = self.factions
         new_state.events = self.events
+        new_state.phase = self.phase
 
         return new_state
 
@@ -454,12 +458,16 @@ class State():
     
     def new_turn(self):
         clock_progression(self)
+        print("Phase: " + str(self.phase))
         self.game_turn += 1
         if self.game_turn == 4:
+            self.phase += 1
             event_ecologic_disaster(self)
         if self.game_turn == 7:
+            self.phase += 1
             event_political_assassination(self)
         if self.game_turn == 10:
+            self.phase += 1
             print("Doomsday has arrived!")
             doomsday = random.randint(1, 4)
 
