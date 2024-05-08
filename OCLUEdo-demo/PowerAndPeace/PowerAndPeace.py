@@ -37,7 +37,11 @@ CARDS = {0: {'name': 'Treaty', 'cost': 10, 'effect': 'Adds 10 rep to a chosen pl
          7: {'name': 'Cultural Exchange', 'cost': 25, 'effect': 'Increase reputation with all countries by 10. Costs $25'},
          8: {'name': 'Sabotage', 'cost': 15, 'effect': 'Discards a card from a random opponent. Costs $15'},
          9: {'name': 'Spy', 'cost': 20, 'effect': 'Checks the hand of an opponent and discard a card. Costs $20'},
-         10: {'name': 'Economic Boom', 'cost': 0, 'effect': 'Increase $30 and stability by 20, decrease Reputation with all countries by 5.'}}
+         10: {'name': 'Economic Boom', 'cost': 0, 'effect': 'Increase $30 and stability by 20, decrease Reputation with all countries by 5.'},
+         11: {'name': 'Taxation', 'cost': 0, 'effect': 'Earn two times the turn number.'},
+         12: {'name': 'Plunder', 'cost': 0, 'effect': 'Steal up to $10 from a chosen player. Lose 10 reputation with them.'},
+         13: {'name': 'Double Agent', 'cost': 50, 'effect': 'Steal 1 goal achievement from a chosen player and lose 20 reputation with them. If chosen player has no achievements, nothing happens.'},
+         14: {'name': 'Diplomat', 'cost': 0, 'effect': 'Earn $1 for every 20 reputation points you have.'}}
 
 
 for player in PLAYERS.values():
@@ -159,6 +163,63 @@ def card_effect_economic_boom(state):
     for player in state.players[state.whose_turn]['reputation']:
         state.players[state.whose_turn]['reputation'][player] -= 5
         state.players[player]['reputation'][state.whose_turn] -= 5
+        
+def card_effect_taxation(state):
+    state.players[state.whose_turn]['money'] += 2 * state.game_turn
+    
+def card_effect_plunder(state):
+    chosen_player = int(input("Choose a player to plunder: "))
+
+    # Decrease the reputation with the chosen player
+    state.players[state.whose_turn]['reputation'][chosen_player] -= 10
+    state.players[chosen_player]['reputation'][state.whose_turn] -= 10
+
+    # take their money
+    loot = min(state.players[chosen_player]['money'], 10)
+    state.players[chosen_player]['money'] -= loot
+    state.players[state.whose_turn]['money'] += loot
+    
+def card_effect_double_agent(state):
+    chosen_player = int(input("Choose a player to claim one of their achievements: "))
+
+    # take their goalScore
+    goal = min(state.players[chosen_player]['goalScore'], 1)
+    if goal == 1:
+        # Decrease the reputation with the chosen player
+        state.players[state.whose_turn]['reputation'][chosen_player] -= 20
+        state.players[chosen_player]['reputation'][state.whose_turn] -= 20
+        
+        state.players[chosen_player]['goalScore'] -= goal
+        state.players[state.whose_turn]['goalScore'] += goal
+        state.players[state.whose_turn]['money'] -= 50
+    
+def card_effect_diplomat(state):
+    favorability = 0
+    for player in state.players[state.whose_turn]['reputation']:
+        favorability += state.players[state.whose_turn]['reputation'][player]
+        print(state.players[state.whose_turn]['reputation'][player])
+        print(favorability)
+    reward = favorability // 20
+    print(reward)
+    state.players[state.whose_turn]['money'] += reward
+    
+# clock mechanic
+def clock_progression(state):
+    minutes = 0
+    for player in state.players:
+        if state.players[player]['stability'] < 50:
+            minutes += 1
+            
+        if state.players[player]['stability'] > 80:
+            minutes -= 1
+            
+        for other in state.players[player]['reputation']:
+            if state.players[player]['reputation'][other] < 45:
+                minutes += 0.5
+                
+            if state.players[player]['reputation'][other] > 75:
+                minutes -= 0.5
+    state.clock['Minute'] += minutes
 
 ## TODO: Randomize player effects Q
 def event_ecologic_disaster(state):
@@ -222,7 +283,11 @@ CARD_EFFECTS = {
     7: card_effect_cultural_exchange,
     8: card_effect_sabotage,
     9: card_effect_spy,
-    10: card_effect_economic_boom
+    10: card_effect_economic_boom,
+    11: card_effect_taxation,
+    12: card_effect_plunder,
+    13: card_effect_double_agent,
+    14: card_effect_diplomat
 }
 
 ACTIVE_EFFECTS = {
@@ -334,6 +399,7 @@ class State():
         return "You have taken over the world!"
     
     def new_turn(self):
+        clock_progression(self)
         self.game_turn += 1
         if self.game_turn == 4:
             event_ecologic_disaster(self)
