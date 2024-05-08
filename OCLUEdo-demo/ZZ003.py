@@ -71,9 +71,9 @@ from flask import Flask, render_template, session, request,\
 from flask_socketio import SocketIO, emit, join_room, leave_room, \
     close_room, rooms, disconnect
 
-#DEBUG = True  # Enables display of extra info, including state info
+DEBUG = True  # Enables display of extra info, including state info
    # that might better be hidden from players during a game.
-DEBUG = False
+# DEBUG = False
 
 HOST = 'tempura.cs.washington.edu'
 PORT = 5000 # Default port, overridden by optional command-line arg.
@@ -411,17 +411,30 @@ def command(data):
     #---at this point the command should a number
     #---indicating which operator to apply
     if not GAME_IN_PROGRESS: return
-    try:
-      i = int(cmd)
-    except:
-      if DEBUG: print("Unknown command or bad operator number.")
-      return # mes("Unknown command or bad operator number.")
+    cmd_split = cmd.split()
+    if len(cmd_split) == 2:
+      try:
+        i = int(cmd_split[0])
+        j = int(cmd_split[1])
+      except:
+        if DEBUG: print("Unknown command or bad operator number.")
+        return # mes("Unknown command or bad operator number.")
+    else:
+      try:
+        i = int(cmd)
+        j = -1
+      except:
+        if DEBUG: print("Unknown command or bad operator number.")
+        return # mes("Unknown command or bad operator number.")
     if DEBUG: print("Operator "+str(i)+" selected.")
     if i<0 or i>= len(OPERATORS):
       if DEBUG: print("There is no operator with number "+str(i))
       return # mes("There is no operator with number.")
+    if j < -1 or j > 3:
+       if DEBUG: print("There is no player with that value")
+       return
 
-    CURRENT_STATE = OPERATORS[i].apply(CURRENT_STATE)
+    CURRENT_STATE = OPERATORS[i].apply(CURRENT_STATE, j)
     STATE_STACK.append(CURRENT_STATE)
 
 # Step 1 to update browser
