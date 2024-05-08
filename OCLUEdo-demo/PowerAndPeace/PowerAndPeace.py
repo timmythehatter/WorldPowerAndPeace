@@ -36,7 +36,7 @@ CARDS = {0: {'name': 'Treaty', 'cost': 10, 'effect': 'Adds 10 rep to a chosen pl
          6: {'name': 'Humanitarian Aid', 'cost': 15, 'effect': 'Increase the stability of another faction by 20. Costs $15'},
          7: {'name': 'Cultural Exchange', 'cost': 25, 'effect': 'Increase reputation with all countries by 10. Costs $25'},
          8: {'name': 'Sabotage', 'cost': 15, 'effect': 'Discards a card from a random opponent. Costs $15'},
-         9: {'name': 'Spy', 'cost': 20, 'effect': 'Checks the hand of an opponent and discard a card. Costs $20'},
+         9: {'name': 'Spy', 'cost': 20, 'effect': 'Steals a random card from a chosen opponent. Costs $30'},
          10: {'name': 'Economic Boom', 'cost': 0, 'effect': 'Increase $30 and stability by 20, decrease Reputation with all countries by 5.'},
          11: {'name': 'Inflation Tax', 'cost': 0, 'effect': 'Earn two times the turn number.'},
          12: {'name': 'Plunder', 'cost': 0, 'effect': 'Steal up to $10 from a chosen player. Lose 10 reputation with them.'},
@@ -46,18 +46,24 @@ CARDS = {0: {'name': 'Treaty', 'cost': 10, 'effect': 'Adds 10 rep to a chosen pl
 
 for player in PLAYERS.values():
     player['cards'] = random.sample(list(CARDS.keys()), k=3)
+    player['cards'].append(0)
 
 
 def card_effect_treaty(state, player):
     chosen_player = player
+    if chosen_player == -1:
+        state.events.append(FACTIONS[state.whose_turn] + " must choose a player to play that card against")
+        return False
 
     # Find the least favored player from the perspective of the chosen player
     # First we get the reputation list of current player to other players as rep_list.
     # Then, we extract the least_favored_player_list of player(s) 
     # with the lowest reputation from th current player.
     # Lastly, we will choose a random player from the list as the least_favored_player.
-    rep_list = state.players[chosen_player]['reputation']
-    least_favored_player_list = [player for player, reputation in rep_list.items() if reputation == min(rep_list.values()) and player != state.whose_turn]
+    rep_list = dict(state.players[chosen_player]['reputation'])
+    if state.whose_turn in rep_list:
+        del rep_list[state.whose_turn]
+    least_favored_player_list = [player for player, reputation in rep_list.items() if reputation == min(rep_list.values())]
     least_favored_player = random.choice(least_favored_player_list)
 
     # Increase the reputation with the chosen player
@@ -70,12 +76,17 @@ def card_effect_treaty(state, player):
 
     print('You have increased reputation with player ' + str(chosen_player) + ' and decreased reputation with player ' + str(least_favored_player))
     state.players[state.whose_turn]['money'] -= 10
+    state.events.append(FACTIONS[state.whose_turn] + "has played card treaty increasing rep with " + FACTIONS[chosen_player] + 
+                        "\n\t and decreasing rep with " + FACTIONS[least_favored_player])
+    return True
 
 def card_effect_factory(state, player):
     state.players[state.whose_turn]['activeCards'].append(1)
     state.players[state.whose_turn]['goalScore'] += 1
     state.players[state.whose_turn]['stability'] += 10    
     state.players[state.whose_turn]['money'] -= 30
+    state.events.append(FACTIONS[state.whose_turn] + " has created a factory")
+    return True
 
 def active_effect_factory(state, owner):
     print("Your factory produces 10 money.")
@@ -83,8 +94,11 @@ def active_effect_factory(state, owner):
 
 def card_effect_embassy(state, player):
     # Generates 10 rep with lowest favored player per turn
+    
     state.players[state.whose_turn]['activeCards'].append(2)
     state.players[state.whose_turn]['money'] -= 50
+    state.events.append(FACTIONS[state.whose_turn] + " has built an embassy")
+    return True
     
 def active_effect_embassy(state, owner):
     rep_list = state.players[owner]['reputation']
@@ -97,25 +111,39 @@ def active_effect_embassy(state, owner):
 def card_effect_trade(state, player):
     # Increases money by 10 times the number of active cards. Requires positive rep with a country.
     state.players[state.whose_turn]['money'] += 10 * len(state.players[state.whose_turn]['activeCards'])
+    print(FACTIONS[state.whose_turn] + " just made $" + str(10 * len(state.players[state.whose_turn]['activeCards'])) + " through trade.")
+    return True
 
 def card_effect_embargo(state, player):
     # Drastically reduces rep with a country and reduces their money
     chosen_player = player
+    if chosen_player == -1:
+        state.events.append(FACTIONS[state.whose_turn] + " must choose a player to play that card against")
+        return False
     state.players[chosen_player]['money'] -= 20
     state.players[state.whose_turn]['reputation'][chosen_player] -= 20
     state.players[state.whose_turn]['stability'] -= 1
     state.players[state.whose_turn]['money'] -= 15
+    print(FACTIONS[state.whose_turn] + " has placed an embargo on " + FACTIONS[chosen_player])
+    return True
 
 def card_effect_election(state, player):
     # Increases factional goal score
     state.players[state.whose_turn]['goalScore'] += 1
     state.players[state.whose_turn]['stability'] -= 1
     state.players[state.whose_turn]['money'] -= 25
+    print(FACTIONS[state.whose_turn] + " just had an election!")
+    return True
 
 def card_effect_humanitarian_aid(state, player):
-    chosen_player = int(input("Choose a player to send aid: "))
+    chosen_player = player
+    if chosen_player == -1:
+        state.events.append(FACTIONS[state.whose_turn] + " must choose a player to play that card against")
+        return False
     state.players[chosen_player]['stability'] += 20
     state.players[state.whose_turn]['money'] -= 15
+    state.events.append(FACTIONS[state.whose_turn] + " just sent humanitarian aid to " + FACTIONS[chosen_player])
+    return True
 
 def card_effect_cultural_exchange(state, player):
     for player in state.players[state.whose_turn]['reputation']:
@@ -123,6 +151,7 @@ def card_effect_cultural_exchange(state, player):
         state.players[player]['reputation'][state.whose_turn] += 10
     
     state.players[state.whose_turn]['money'] -= 25
+    state.events.append(FACTIONS[state.whose_turn] + " just engaged in a cultural exchange.")
 
 def card_effect_sabotage(state, player):
     random_player = random.choice(list(state.players[state.whose_turn]['reputation'].keys()))
@@ -131,33 +160,23 @@ def card_effect_sabotage(state, player):
 
     print('You have discarded card ' + str(random_card) + ' from player ' + str(random_player) + '!')
     state.players[state.whose_turn]['money'] -= 15
+    state.events.append(FACTIONS[state.whose_turn] + " just sabatoged " + FACTIONS[random_player])
+    return True
 
 def card_effect_spy(state, player):
-    while(True):
-        chosen_player = int(input('Choose an opponent to spy on: '))
-
-        if chosen_player == state.whose_turn:
-            print('Must choose an opponent!')
-        else:
-            break
+    chosen_player = player
+    if chosen_player == -1:
+        state.events.append(FACTIONS[state.whose_turn] + " must choose a player to play that card against")
+        return False
 
     player_cards = state.players[chosen_player]['cards']
-    print('Player ' + str(chosen_player) + ' Current Cards: ')
-    for index, card in enumerate(player_cards):
-        print(str(index) + ': ' + str(CARDS[card])[1:-1])
+    card = random.choice(player_cards)
 
-    while(True):
-        chosen_card = int(input('Choose a card to discard: '))
-
-        if not (0 <= chosen_card < len(player_cards)):
-            print('Must choose a card within the range!')
-        else:
-            break
-
-    discarded_card = state.players[chosen_player]['cards'][chosen_card]
-    state.players[chosen_player]['cards'].remove(player_cards[chosen_card])
-    print('You have discarded ' + str(CARDS[discarded_card]['name']) + ' from player ' + str(chosen_player) + '!')
-    state.players[state.whose_turn]['money'] -= 20
+    state.players[chosen_player]['cards'].remove(card)
+    state.players[state.whose_turn]['cards'].append(card)
+    state.players[state.whose_turn]['money'] -= 30
+    state.events.append(FACTIONS[state.whose_turn] + " has spied on " + FACTIONS[chosen_player])
+    return True
 
 def card_effect_economic_boom(state, player):
     state.players[state.whose_turn]['money'] += 20
@@ -166,25 +185,37 @@ def card_effect_economic_boom(state, player):
     for player in state.players[state.whose_turn]['reputation']:
         state.players[state.whose_turn]['reputation'][player] -= 5
         state.players[player]['reputation'][state.whose_turn] -= 5
+    state.events.append(FACTIONS[state.whose_turn] + " just had an economic boom!")
+    return True
         
-def card_effect_inflation_tax(state):
+def card_effect_inflation_tax(state, player):
     state.players[state.whose_turn]['money'] += 3 * state.game_turn
+    state.events.append(FACTIONS[state.whose_turn] + " just set an inflation tax on their population.")
+    return True
     
-def card_effect_plunder(state):
-    chosen_player = int(input("Choose a player to plunder: "))
-
+def card_effect_plunder(state, player):
+    chosen_player = player
+    if chosen_player == -1:
+        state.events.append(FACTIONS[state.whose_turn] + " must choose a player to play that card against")
+        return False
+    
     # Decrease the reputation with the chosen player
-    state.players[state.whose_turn]['reputation'][chosen_player] -= 10
-    state.players[chosen_player]['reputation'][state.whose_turn] -= 10
+    state.players[state.whose_turn]['reputation'][chosen_player] -= 30
+    state.players[chosen_player]['reputation'][state.whose_turn] -= 30
 
     # take their money
-    max = min(state.players[chosen_player]['money'], 15)
+    max = min(state.players[chosen_player]['money'], 30) / 2
     loot = random.randint(max)
     state.players[chosen_player]['money'] -= loot
     state.players[state.whose_turn]['money'] += loot
+    state.events.append(FACTIONS[state.whose_turn] + " has plundered " + FACTIONS[chosen_player])
+    return True
     
-def card_effect_double_agent(state):
-    chosen_player = int(input("Choose a player to claim one of their achievements: "))
+def card_effect_double_agent(state, player):
+    chosen_player = player
+    if chosen_player == -1:
+        state.events.append(FACTIONS[state.whose_turn] + " must choose a player to play that card against")
+        return False
 
     # take their goalScore
     goal = min(state.players[chosen_player]['goalScore'], 1)
@@ -196,8 +227,13 @@ def card_effect_double_agent(state):
         state.players[chosen_player]['goalScore'] -= goal
         state.players[state.whose_turn]['goalScore'] += goal
         state.players[state.whose_turn]['money'] -= 50
+        state.events.append(FACTIONS[state.whose_turn] + " planted a double agent against " + FACTIONS[chosen_player])
+        return True
+    else:
+        state.events.append(FACTIONS[state.whose_turn] + " must play that card against someone that has goal score.")
+        return False
     
-def card_effect_diplomat(state):
+def card_effect_diplomat(state, player):
     favorability = 0
     for player in state.players[state.whose_turn]['reputation']:
         favorability += state.players[state.whose_turn]['reputation'][player]
@@ -206,6 +242,8 @@ def card_effect_diplomat(state):
     reward = favorability // 20
     print(reward)
     state.players[state.whose_turn]['money'] += reward
+    state.events.append(FACTIONS[state.whose_turn] + "'s diplomatic endeavors were rewarded.")
+    return True
     
 # clock mechanic
 def clock_progression(state):
@@ -372,6 +410,7 @@ class State():
         new_state.clock = self.clock
         new_state.game_turn = self.game_turn
         new_state.factions = self.factions
+        new_state.events = self.events
 
         return new_state
 
@@ -388,10 +427,15 @@ class State():
     def move(self, card, player):
         # Procedure for moving from one game state to next
         if card not in self.players[self.whose_turn]['cards']:
-            self.events.append("Player does not have that card. Play a card you have")
+            self.events.append(FACTIONS[self.whose_turn] + " does not have that card. Play a card you have")
+            return self
+        elif player == self.whose_turn:
+            self.events.append(FACTIONS[self.whose_turn] + " can't play a card against themself.")
             return self
         else:
-            CARD_EFFECTS[card](self, player)
+            played = CARD_EFFECTS[card](self, player)
+            if not played:
+                return self
             self.players[self.whose_turn]['cards'].remove(card)
             news = self.__copy__()  # start with a deep copy.
             news.whose_turn = (news.whose_turn % 4) + 1
