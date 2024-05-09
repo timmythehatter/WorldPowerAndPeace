@@ -148,9 +148,21 @@ def render_state(s, roles=None):
                      stroke="black",
                      fill="white"))
     
+
     for i in range(0, len(s.players[role]['cards'])):
         offset = 33 + 10 * i
-        add_image_to_svg(dwg, FACTION_CARDS[role], (str(offset) + "%", "75.5%"), ("20%", "20%"))
+        if (role-1) in roles:
+            if role == 1:
+                add_image_to_svg(dwg, BSS_CARDS[8], (str(offset) + "%", "76%"), ("20%", "20%"))
+            elif role == 2:
+                add_image_to_svg(dwg, SE_CARDS[8], (str(offset) + "%", "76%"), ("20%", "20%"))
+            elif role == 3:
+                add_image_to_svg(dwg, SL_CARDS[8], (str(offset) + "%", "76%"), ("20%", "20%"))
+            else:
+                add_image_to_svg(dwg, VC_CARDS[8], (str(offset) + "%", "76%"), ("20%", "20%"))
+        else:
+            add_image_to_svg(dwg, FACTION_CARDS[role], (str(offset) + "%", "76%"), ("20%", "20%"))
+            
 
     clock_text = f"MINUTES TO MIDNIGHT: {60 - s.clock['Minute']:02}"
     clock_position_x = f"{W - 100}px"  # Adjust this value to position it right with a margin
@@ -216,6 +228,22 @@ FACTION_CARDS = {
     2: "se_back.png",
     3: "sl_back.png",
     4: "vc_back.png"
+}
+
+BSS_CARDS = {
+    8: "bss_sabotage.png"
+}
+
+SE_CARDS = {
+    8: "se_sabotage.png"
+}
+
+SL_CARDS = {
+    8: "sl_sabotage.png"
+}
+
+VC_CARDS = {
+    8: "vc_sabotage.png"
 }
 
 if __name__ == '__main__':

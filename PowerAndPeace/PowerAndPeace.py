@@ -206,7 +206,7 @@ def card_effect_plunder(state, player):
 
     # take their money
     max = min(state.players[chosen_player]['money'], 30) / 2
-    loot = random.randint(max)
+    loot = random.randint(0, max)
     state.players[chosen_player]['money'] -= loot
     state.players[state.whose_turn]['money'] += loot
     state.events.append(FACTIONS[state.whose_turn] + " has plundered " + FACTIONS[chosen_player])
@@ -420,8 +420,10 @@ class State():
 
         return new_state
 
-    def can_move(self, card):
+    def can_move(self, role, card):
         '''Tests if the player has enough money to use the given card.'''
+        if not (self.whose_turn-1) == role:
+            return False
         try:
             if card in self.players[self.whose_turn]['cards']:
                return True
@@ -509,7 +511,7 @@ class Operator(Basic_Operator):
   
 op_play_card = [Operator(
     "Play card " + CARDS[card_id]['name'] + " with effect " + CARDS[card_id]['effect'],
-    lambda s, role=0, card_id=card_id: s.can_move(card_id),
+    lambda s, role=0, card_id=card_id: s.can_move(role, card_id),
     lambda s, params, card_id=card_id: s.move(card_id, params)
     )
         for card_id in CARDS]
