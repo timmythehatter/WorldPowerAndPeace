@@ -16,10 +16,10 @@ PROBLEM_DESC = \
 
 CLOCK = {'Hour': 11 , 'Minute': 00}
 
-PLAYERS = {1: {'money': 100, 'reputation': {2: 100, 3: 100, 4: 100}, 'cards': [], 'stability': 100, 'goalScore': 0, 'activeCards': []},
-           2: {'money': 100, 'reputation': {1: 100, 3: 100, 4: 100}, 'cards': [], 'stability': 100, 'goalScore': 0, 'activeCards': []},
-           3: {'money': 100, 'reputation': {1: 100, 2: 100, 4: 100}, 'cards': [], 'stability': 100, 'goalScore': 0, 'activeCards': []},
-           4: {'money': 100, 'reputation': {1: 100, 2: 100, 3: 100}, 'cards': [], 'stability': 100, 'goalScore': 0, 'activeCards': []}}
+PLAYERS = {1: {'money': 100, 'reputation': {2: 100, 3: 100, 4: 100}, 'cards': [], 'stability': 100, 'goalScore': 1, 'activeCards': []},
+           2: {'money': 100, 'reputation': {1: 100, 3: 100, 4: 100}, 'cards': [], 'stability': 100, 'goalScore': 1, 'activeCards': []},
+           3: {'money': 100, 'reputation': {1: 100, 2: 100, 4: 100}, 'cards': [], 'stability': 100, 'goalScore': 1, 'activeCards': []},
+           4: {'money': 100, 'reputation': {1: 100, 2: 100, 3: 100}, 'cards': [], 'stability': 100, 'goalScore': 1, 'activeCards': []}}
            
 
 FACTIONS = {1: 'Black Sun Syndicate',
@@ -353,6 +353,8 @@ class State():
         self.whose_turn = 1
         self.phase = 1
         self.events = []
+        self.end_game = ""
+        self.game_over = False
 
         
 
@@ -417,6 +419,8 @@ class State():
         new_state.factions = self.factions
         new_state.events = self.events
         new_state.phase = self.phase
+        new_state.end_game = self.end_game
+        new_state.game_over = self.game_over
 
         return new_state
 
@@ -454,16 +458,17 @@ class State():
 
     def is_goal(self):
         '''WIP: Checks if the current state is a goal state.'''
-        return self.game_turn == 12 or self.players[self.whose_turn]['money'] >= 2000
-
-
-    def goal_message(self):
-        return "You have taken over the world!"
+        return self.clock['Minute'] >= 60 or self.game_over
+            
+        
     
     def new_turn(self):
         clock_progression(self)
         print("Phase: " + str(self.phase))
         self.game_turn += 1
+        if self.game_turn == 2 and self.whose_turn == 1:
+            self.game_over = True
+            goal_message(self)
         if self.game_turn == 4:
             self.phase += 1
             event_ecologic_disaster(self)
@@ -478,6 +483,29 @@ class State():
         for player in self.players:
             for card in self.players[player]['activeCards']:
                 ACTIVE_EFFECTS[card](self, player)
+
+def goal_message(self):
+    if self.clock['Minute'] >= 60:
+        end_game_messsage = "A nuclear war has broken out. There are no winners, only survivors."
+        self.end_game = end_game_messsage
+        return end_game_messsage
+    else:
+        # Calculate the scores for each player based on the provided formula
+        scores = {}
+        for player_id, info in self.players.items():
+            rep_sum = sum(info['reputation'].values())  # sum of reputations with other players
+            score = info['goalScore'] * (rep_sum + info['money'] + info['stability'])
+            scores[player_id] = score
+        
+        # Sort scores in descending order to rank players
+        sorted_scores = sorted(scores.items(), key=lambda item: item[1], reverse=True)
+        ranking_message = "Game over! Here are the player rankings:\n"
+        for rank, (player_id, score) in enumerate(sorted_scores, start=1):
+            faction_name = self.factions[player_id]
+            ranking_message += f"{rank}. {faction_name} with a score of {score}\n"
+
+        self.end_game = ranking_message
+        return ranking_message
 
 SESSION = None
 def get_session():

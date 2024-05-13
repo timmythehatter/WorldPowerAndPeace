@@ -7,7 +7,7 @@ import svgwrite
 import base64
 from PowerAndPeace import *  # State,
 
-DEBUG = False
+DEBUG = True
 W = 1275  # Width of Vis. region
 SQW = W / 8
 HALF_SQW = SQW / 2
@@ -54,6 +54,19 @@ def render_state(s, roles=None):
                             size=("98%", "100%"),
                             viewBox=f"0 0 {W} {H}",
                             debug=False)
+    
+    if DEBUG:
+        print("Debug: " + str(s.game_over))
+    
+    # Check if the game is over and display the end game message if it is.
+    if s.game_over:
+        # Display end game message
+        dwg.add(dwg.text(s.end_game,
+                         insert=("50%", "50%"),
+                         text_anchor="middle",
+                         font_size="24px",
+                         fill="red"))
+        return dwg.tostring()
 
     role = s.whose_turn
     role_state = [
