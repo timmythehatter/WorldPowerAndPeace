@@ -71,7 +71,7 @@ from flask import Flask, render_template, session, request,\
 from flask_socketio import SocketIO, emit, join_room, leave_room, \
     close_room, rooms, disconnect
 
-DEBUG = True  # Enables display of extra info, including state info
+DEBUG = False  # Enables display of extra info, including state info
    # that might better be hidden from players during a game.
 # DEBUG = False
 
@@ -434,23 +434,26 @@ def command(data):
        if DEBUG: print("There is no player with that value")
        return
 
-    CURRENT_STATE = OPERATORS[i].apply(CURRENT_STATE, j)
-    STATE_STACK.append(CURRENT_STATE)
+    if not CURRENT_STATE.is_goal():
+      CURRENT_STATE = OPERATORS[i].apply(CURRENT_STATE, j)
+      STATE_STACK.append(CURRENT_STATE)
 
-# Step 1 to update browser
-    try: 
-      if PROBLEM.BRIFL_SVG:
-          STATE_SVG = PROBLEM.render_state(CURRENT_STATE)
-          if DEBUG: print("A new state graphic was produced.")
-    except Exception as e:
-      print("There was an exception when trying to do SVG rendering of the CURRENT_STATE.")
-      print(e)
+  # Step 1 to update browser
+      try: 
+        if PROBLEM.BRIFL_SVG:
+            STATE_SVG = PROBLEM.render_state(CURRENT_STATE)
+            if DEBUG: print("A new state graphic was produced.")
+      except Exception as e:
+        print("There was an exception when trying to do SVG rendering of the CURRENT_STATE.")
+        print(e)
 
-# Step 2 to update browser
-    emit_problem_state()
-    update_applicability_vector(CURRENT_STATE)
+  # Step 2 to update browser
+      emit_problem_state()
+      update_applicability_vector(CURRENT_STATE)
 
-    if CURRENT_STATE.is_goal(): return(handle_win())
+    else:
+       handle_win()
+       STATE_SVG = PROBLEM.render_state(CURRENT_STATE)
         
     return
 
@@ -482,9 +485,9 @@ def initialize_problem():
   update_applicability_vector(CURRENT_STATE) 
   if DEBUG: print("In initialize_problem, PROBLEM.BRIFL_SVG = " + str(PROBLEM.BRIFL_SVG))
   try: 
-     if not SESSION['USE_ROLE_SPECIFIC_VISUALIZATIONS']:
-       if PROBLEM.BRIFL_SVG: STATE_SVG = PROBLEM.render_state(CURRENT_STATE)
-     emit_problem_state()
+    if not SESSION['USE_ROLE_SPECIFIC_VISUALIZATIONS']:
+      if PROBLEM.BRIFL_SVG: STATE_SVG = PROBLEM.render_state(CURRENT_STATE)
+    emit_problem_state()
   except Exception as e:
      print("There was an exception when trying to do SVG rendering of the CURRENT_STATE.")
      print(e)
