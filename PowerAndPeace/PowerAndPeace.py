@@ -22,7 +22,8 @@ PLAYERS = {1: {'money': 100, 'reputation': {2: 100, 3: 100, 4: 100}, 'cards': []
            4: {'money': 100, 'reputation': {1: 100, 2: 100, 3: 100}, 'cards': [], 'stability': 100, 'goalScore': 1, 'activeCards': []}}
            
 
-FACTIONS = {1: 'Black Sun Syndicate',
+FACTIONS = {-1: 'Game Start',
+            1: 'Black Sun Syndicate',
             2: 'Scarlet Empire',
             3: 'Sapphire League',
             4: 'Viridian Concord'}
@@ -350,7 +351,7 @@ class State():
         self.cards = CARDS
         self.clock = CLOCK
         self.factions = FACTIONS
-        self.whose_turn = 1
+        self.whose_turn = -1
         self.phase = 1
         self.events = []
         self.end_game = ""
@@ -387,6 +388,8 @@ class State():
     def __str__(self):
         # Produces a textual description of a state.
         # Might not be needed in normal operation with GUIs.
+        if self.whose_turn == -1:
+            return 'It is the start of the game or a phase change'
         txt = "Current Player: " + self.factions[self.whose_turn] + "\n"
         # for p in self.players:
         #     txt += "Player " + str(p) + ":\n"
@@ -484,6 +487,14 @@ class State():
             for card in self.players[player]['activeCards']:
                 ACTIVE_EFFECTS[card](self, player)
 
+    def can_proceed(self, role):
+        return True
+    
+    def proceed(self):
+        news = self.__copy__()
+        news.whose_turn = 1
+        return news
+
 def goal_message(self):
     if self.clock['Minute'] >= 60:
         end_game_messsage = "A nuclear war has broken out. There are no winners, only survivors."
@@ -543,8 +554,14 @@ op_play_card = [Operator(
     lambda s, params, card_id=card_id: s.move(card_id, params)
     )
         for card_id in CARDS]
+
+op_start_game = [Operator(
+    "I have read the story and wish to proceed",
+    lambda s, role=0: s.can_proceed(role),
+    lambda s, params: s.proceed()
+)]
   
-OPERATORS = op_play_card
+OPERATORS = op_play_card + op_start_game
 # </OPERATORS>
 
 #<INITIAL_STATE>

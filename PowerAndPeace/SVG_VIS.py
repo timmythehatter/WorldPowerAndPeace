@@ -7,7 +7,7 @@ import svgwrite
 import base64
 from PowerAndPeace import *  # State,
 
-DEBUG = True
+DEBUG = False
 W = 1275  # Width of Vis. region
 SQW = W / 8
 HALF_SQW = SQW / 2
@@ -76,8 +76,49 @@ def render_state(s, roles=None):
                             viewBox=f"0 0 {W} {H}",
                             debug=False)
     
-    if DEBUG:
-        print("Debug: " + str(s.game_over))
+    if s.whose_turn == -1:
+
+        # # Path to your background image
+        # background_image_path = "path_to_your_background_image.jpg"
+
+        # # Add the background image
+        # add_image_to_svg(dwg, background_image_path, (0, 0), (W, H))
+
+        intro_text = [
+            "In a galaxy far, far away, a delicate balance of power shapes the destiny of countless lives. Amidst the stars, four distinct nations vie for dominance, each driven by their own unique ambitions and ideologies.",
+            "The Black Sun Syndicate",
+            "From the dense industrial complexes of their capital, the leaders of the Black Sun Syndicate master the art of economics. This money-hungry nation, built on the engines of massive corporations and fueled by ceaseless commerce, is dedicated to accumulating wealth. Their economy is their weapon, their shield, and their philosophy. Ruthless in business and unyielding in their pursuit of financial supremacy, they navigate the cosmic seas with a fleet powered by the almighty credit.",
+            "The Scarlet Empire",
+            "With their vast armies and formidable fleets, the Scarlet Empire epitomizes the might of military prowess. Theirs is a society built on the valor of conquest and the spoils of war. Benefiting greatly from the arms trade, the Empire's forges burn day and night, crafting weapons that ensure their borders expand ever outward. Warlords and generals hold power here, ruling over their domains with iron fists and sharp strategies.",
+            "The Sapphire League",
+            "Amidst the intellectual sanctuaries and advanced research facilities, the Sapphire League rises as a beacon of progress. This technologically advanced nation thrives on innovation and scientific discovery. Their society is sculpted by the brightest minds, where inventors and scientists are revered. In their quest for knowledge, they harness the power of new technologies to influence the galaxy around them, offering solutions that sway wars and alter economies.",
+            "The Viridian Concord",
+            "Deep within lush green worlds and thriving biodomes, the Viridian Concord champions the cause of the environment. This ecologically focused nation stands as the galaxy's guardian of nature, dedicated to preserving the delicate balance of their ecosystems. They wield influence not through force or wealth but through diplomacy and stewardship, striving to protect the galaxy from the ravages of industrial exploitation and warfare.",
+            "As tensions rise and alliances form, the galaxy watches with bated breath, waiting to see which nation will ascend to dominate the cosmic landscape. The struggle for power, peace, and prosperity rages on, echoing through the stars..."
+        ]
+
+        text_start_x = "50%"
+        text_start_y = "10%"  # Adjust starting y-coordinate as needed
+        text_dy = "1.5em"
+        dy_accumulated = 0
+        
+        for i, paragraph in enumerate(intro_text):
+            font_size = "12px"
+            if paragraph.startswith("The "):  # This is a title, add extra space before it
+                dy_accumulated += 1.5  # Increase for a line break
+            lines = split_text(paragraph, 170)
+            for line in lines:
+                dy_value = f"{dy_accumulated}em"
+                dy_accumulated += 1.5  # Increase the dy value after each line
+                dwg.add(dwg.text(line,
+                                 insert=(text_start_x, text_start_y),
+                                 text_anchor="middle",
+                                 font_size=font_size,
+                                 dy=[dy_value],
+                                 fill="black"))
+        
+        return dwg.tostring()
+
     
     # Check if the game is over and display the end game message if it is.
     if s.game_over:
