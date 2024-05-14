@@ -466,7 +466,7 @@ class State():
         clock_progression(self)
         print("Phase: " + str(self.phase))
         self.game_turn += 1
-        if self.game_turn == 2 and self.whose_turn == 1:
+        if self.game_turn == 13 and self.whose_turn == 1:
             self.game_over = True
             goal_message(self)
         if self.game_turn == 4:

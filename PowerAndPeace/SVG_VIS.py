@@ -45,6 +45,27 @@ def add_image_to_svg(dwg, image_path, position, size):
     image_data_url = load_image_as_base64(image_path)
     dwg.add(dwg.image(image_data_url, insert=position, size=size))
 
+def split_text(text, max_length=50):  # 'indent' can be adjusted as needed
+    words = text.split()
+    lines = []
+    current_line = ""
+
+    for word in words:
+        if len(current_line + word) + 1 > max_length:
+            if current_line:  # Avoid adding an empty string if the first word is too long
+                lines.append(current_line)
+            current_line =  word  # Start a new line with an indentation
+        else:
+            if current_line:
+                current_line += " " + word  # Add a space before the word if it's not the first word
+            else:
+                current_line = word  # Start a new line without leading spaces
+
+    lines.append(current_line)
+    return lines
+
+
+
 
 def render_state(s, roles=None):
     global session
@@ -60,13 +81,18 @@ def render_state(s, roles=None):
     
     # Check if the game is over and display the end game message if it is.
     if s.game_over:
-        # Display end game message
-        dwg.add(dwg.text(s.end_game,
-                         insert=("50%", "50%"),
-                         text_anchor="middle",
-                         font_size="24px",
-                         fill="red"))
+        text = dwg.text("", insert=("50%", "50%"), text_anchor="middle", font_size="24px", fill="red")
+    
+        # Split the end game message into lines
+        lines = s.end_game.split('\n')
+        for i, line in enumerate(lines):
+            # Add each line as a tspan, adjusting 'dy' for line spacing
+            text.add(dwg.tspan(line, x=["50%"], dy=["1.2em"] if i > 0 else ["0em"]))
+    
+        # Add the complete text element to the drawing
+        dwg.add(text)
         return dwg.tostring()
+
 
     role = s.whose_turn
     role_state = [
@@ -189,14 +215,44 @@ def render_state(s, roles=None):
     
     # Calculate start position for events text
     events_start_x = "1%"
-    events_start_y = f"{H - 100}px"  # Adjust this value as needed to fit within your SVG dimensions
+    events_start_y = f"{H - 150}px"  # Adjust this value as needed to fit within your SVG dimensions
     line_height = "1.1em"
+
+    line_count = 0  # This will keep track of the total number of lines displayed so far
+
+    for i, event in enumerate(reversed(events_to_display)):
+        lines = split_text(event, 100)  # Use your defined max length here
+        for j, line in enumerate(lines):
+            if i == 0 and j == 0:
+                # First line of the first event
+                dy_value = "0em"
+            else:
+                # Calculate 'dy' based on the total lines displayed so far
+                dy_value = f"{float(line_height[:-2]) * (line_count + (1 if j == 0 else 0))}em"
+            
+            dwg.add(dwg.text(line,
+                            insert=(events_start_x, events_start_y),
+                            text_anchor="start",
+                            font_size="8",
+                            dy=[dy_value],
+                            fill=ROLE_TEXT[role]))
+            if j == 0 and not i == 0:
+                line_count += 2
+            else:
+                line_count += 1  # Update the total line count after each line is added
+
+        # After each event, add an extra line's space to separate events
+        if i < len(events_to_display) - 1:  # Check to ensure it's not the last event
+            line_count += 1  # This adds space equivalent to one extra line
+
+
+
     
     # Add events text to the SVG
-    for i, event in enumerate(reversed(events_to_display)):
-        dy_value = f"{float(line_height[:-2]) * i}em"
-        dwg.add(dwg.text(event, insert=(events_start_x, events_start_y), text_anchor="start",
-                         font_size="8", dy=[dy_value], fill=ROLE_TEXT[role]))
+    # for i, event in enumerate(reversed(events_to_display)):
+    #     dy_value = f"{float(line_height[:-2]) * i}em"
+    #     dwg.add(dwg.text(event, insert=(events_start_x, events_start_y), text_anchor="start",
+    #                      font_size="8", dy=[dy_value], fill=ROLE_TEXT[role]))
 
     svg_string = dwg.tostring()
     return svg_string
