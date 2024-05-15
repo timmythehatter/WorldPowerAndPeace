@@ -495,7 +495,7 @@ CARD_EFFECTS = {
     11: card_effect_inflation_tax,
     12: card_effect_plunder,
     13: card_effect_double_agent,
-    14: card_effect_diplomat
+    14: card_effect_diplomat,
     15: card_effect_citizen_uplift,
     16: card_effect_friendly_neighborhood,
     17: card_effect_thief,
