@@ -255,13 +255,13 @@ def render_state(s, roles=None):
         offset = 33 + 10 * i
         if (role-1) in roles:
             if role == 1:
-                add_image_to_svg(dwg, BSS_CARDS[8], (str(offset) + "%", "76%"), ("20%", "20%"))
+                add_image_to_svg(dwg, BSS_CARDS[s.players[role]['cards'][i]], (str(offset) + "%", "76%"), ("20%", "20%"))
             elif role == 2:
-                add_image_to_svg(dwg, SE_CARDS[8], (str(offset) + "%", "76%"), ("20%", "20%"))
+                add_image_to_svg(dwg, SE_CARDS[s.players[role]['cards'][i]], (str(offset) + "%", "76%"), ("20%", "20%"))
             elif role == 3:
-                add_image_to_svg(dwg, SL_CARDS[8], (str(offset) + "%", "76%"), ("20%", "20%"))
+                add_image_to_svg(dwg, SL_CARDS[s.players[role]['cards'][i]], (str(offset) + "%", "76%"), ("20%", "20%"))
             else:
-                add_image_to_svg(dwg, VC_CARDS[8], (str(offset) + "%", "76%"), ("20%", "20%"))
+                add_image_to_svg(dwg, VC_CARDS[s.players[role]['cards'][i]], (str(offset) + "%", "76%"), ("20%", "20%"))
         else:
             add_image_to_svg(dwg, FACTION_CARDS[role], (str(offset) + "%", "76%"), ("20%", "20%"))
             
@@ -363,19 +363,75 @@ FACTION_CARDS = {
 }
 
 BSS_CARDS = {
-    8: "bss_sabotage.png"
+    0: "bss_cards/bss_treaty.png",
+    1: "bss_cards/bss_factory.png",
+    2: "bss_cards/bss_embassy.png",
+    3: "bss_cards/bss_technology_research.png",
+    4: "bss_cards/bss_blockade.png",
+    5: "bss_cards/bss_election.png",
+    6: "bss_cards/bss_military_aid.png",
+    7: "bss_cards/bss_international_summit.png",
+    8: "bss_cards/bss_sabotage.png",
+    9: "bss_cards/bss_spy.png",
+    10: "bss_cards/bss_posturing.png",
+    11: "bss_cards/bss_nuclear_energy.png",
+    12: "bss_cards/bss_spy_satellite.png",
+    13: "bss_cards/bss_double_agent.png",
+    14: "bss_cards/bss_diplomacy.png"
 }
 
 SE_CARDS = {
-    8: "se_sabotage.png"
+    0: "se_cards/se_treaty.png",
+    1: "se_cards/se_factory.png",
+    2: "se_cards/se_embassy.png",
+    3: "se_cards/se_technology_research.png",
+    4: "se_cards/se_blockade.png",
+    5: "se_cards/se_election.png",
+    6: "se_cards/se_military_aid.png",
+    7: "se_cards/se_international_summit.png",
+    8: "se_cards/se_sabotage.png",
+    9: "se_cards/se_spy.png",
+    10: "se_cards/se_posturing.png",
+    11: "se_cards/se_nuclear_energy.png",
+    12: "se_cards/se_spy_satellite.png",
+    13: "se_cards/se_double_agent.png",
+    14: "se_cards/se_diplomacy.png"
 }
 
 SL_CARDS = {
-    8: "sl_sabotage.png"
+    0: "sl_cards/sl_treaty.png",
+    1: "sl_cards/sl_factory.png",
+    2: "sl_cards/sl_embassy.png",
+    3: "sl_cards/sl_technology_research.png",
+    4: "sl_cards/sl_blockade.png",
+    5: "sl_cards/sl_election.png",
+    6: "sl_cards/sl_military_aid.png",
+    7: "sl_cards/sl_international_summit.png",
+    8: "sl_cards/sl_sabotage.png",
+    9: "sl_cards/sl_spy.png",
+    10: "sl_cards/sl_posturing.png",
+    11: "sl_cards/sl_nuclear_energy.png",
+    12: "sl_cards/sl_spy_satellite.png",
+    13: "sl_cards/sl_double_agent.png",
+    14: "sl_cards/sl_diplomacy.png"
 }
 
 VC_CARDS = {
-    8: "vc_sabotage.png"
+    0: "vc_cards/vc_treaty.png",
+    1: "vc_cards/vc_factory.png",
+    2: "vc_cards/vc_embassy.png",
+    3: "vc_cards/vc_technology_research.png",
+    4: "vc_cards/vc_blockade.png",
+    5: "vc_cards/vc_election.png",
+    6: "vc_cards/vc_military_aid.png",
+    7: "vc_cards/vc_international_summit.png",
+    8: "vc_cards/vc_sabotage.png",
+    9: "vc_cards/vc_spy.png",
+    10: "vc_cards/vc_posturing.png",
+    11: "vc_cards/vc_nuclear_energy.png",
+    12: "vc_cards/vc_spy_satellite.png",
+    13: "vc_cards/vc_double_agent.png",
+    14: "vc_cards/vc_diplomacy.png"
 }
 
 if __name__ == '__main__':

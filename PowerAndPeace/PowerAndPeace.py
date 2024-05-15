@@ -36,29 +36,29 @@ CARDS = {
          # positive
          2: {'name': 'Embassy', 'cost': 50, 'effect': 'Generates 5 rep lowest favored country per turn. Costs $50', 'alignment': 1},
          # positive
-         3: {'name': 'Trade', 'cost': 30, 'effect': 'Increases money by 10 times the number of active cards. Costs $30', 'alignment': 1},
+         3: {'name': 'Technology Research', 'cost': 30, 'effect': 'Increases money by 10 times the number of active cards. Costs $30', 'alignment': 1},
          # negative
-         4: {'name': 'Embargo', 'cost': 15, 'effect': 'Drastically reduces rep with a country and reduces their money by $30. Costs $10', 'alignment': -1},
+         4: {'name': 'Blockade', 'cost': 15, 'effect': 'Drastically reduces rep with a country and reduces their money by $30. Costs $10', 'alignment': -1},
          # neutral
          5: {'name': 'Election', 'cost': 25, 'effect': 'Increases factional goal score. Costs $25', 'alignment': 0},
          # positive
-         6: {'name': 'Humanitarian Aid', 'cost': 15, 'effect': 'Increase the stability of another chosen faction by 20. Costs $40', 'alignment': 1},
+         6: {'name': 'Military Aid', 'cost': 15, 'effect': 'Increase the stability of another chosen faction by 20. Costs $40', 'alignment': 1},
          # positive
-         7: {'name': 'Cultural Exchange', 'cost': 25, 'effect': 'Increase reputation with all countries by 10. Costs $50', 'alignment': 1},
+         7: {'name': 'International Summit', 'cost': 25, 'effect': 'Increase reputation with all countries by 10. Costs $50', 'alignment': 1},
          # negative
          8: {'name': 'Sabotage', 'cost': 5, 'effect': 'Discards a card from a random opponent. Costs $5', 'alignment': -1},
          # negative
          9: {'name': 'Spy', 'cost': 10, 'effect': 'Steals a random card from a chosen opponent. Costs $10', 'alignment': -1},
          # neutral
-         10: {'name': 'Economic Boom', 'cost': 0, 'effect': 'Increase $30 and stability by 20, decrease Reputation with all countries by 15.', 'alignment': 0},
+         10: {'name': 'Posturing', 'cost': 0, 'effect': 'Gain $30 and increase stability by 20, decrease Reputation with all countries by 15.', 'alignment': -1},
          # neutral
-         11: {'name': 'Inflation Tax', 'cost': 0, 'effect': 'Earn $10 times the turn number but reduces stability by the same amount.', 'alignment': 0},
+         11: {'name': 'Nuclear Energy', 'cost': 0, 'effect': 'Earn $10 times the turn number but reduces stability by the same amount.', 'alignment': 0},
          # negative
-         12: {'name': 'Plunder', 'cost': 0, 'effect': 'Steal a random amount from $0 - $100 from a chosen player. Lose 20 reputation with them.', 'alignment': -1},
+         12: {'name': 'Spy Satellite', 'cost': 0, 'effect': 'Steal a random amount from $0 - $100 from a chosen player. Lose 20 reputation with them.', 'alignment': -1},
          # negative
          13: {'name': 'Double Agent', 'cost': 20, 'effect': 'Steal some goal achievement from a chosen player and lose 20 reputation with them. Costs $20', 'alignment': -1},
          # positive
-         14: {'name': 'Diplomat', 'cost': 0, 'effect': 'Earn $1 for every 30 reputation points you have.', 'alignment': 1}
+         14: {'name': 'Diplomacy', 'cost': 0, 'effect': 'Earn $1 for every 30 reputation points you have.', 'alignment': 1}
          }
 
 
@@ -100,7 +100,7 @@ def card_effect_treaty(state, player):
 
     print('You have increased reputation with player ' + str(chosen_player) + ' and decreased reputation with player ' + str(least_favored_player))
     state.players[state.whose_turn]['money'] -= 10
-    state.events.append(FACTIONS[state.whose_turn] + "has played card treaty increasing rep with " + FACTIONS[chosen_player] + 
+    state.events.append(FACTIONS[state.whose_turn] + " has played card treaty increasing rep with " + FACTIONS[chosen_player] + 
                         "\n\t and decreasing rep with " + FACTIONS[least_favored_player])
     return True
 
@@ -165,7 +165,7 @@ def card_effect_humanitarian_aid(state, player):
         return False
     state.players[chosen_player]['stability'] += 20
     state.players[state.whose_turn]['money'] -= 40
-    state.events.append(FACTIONS[state.whose_turn] + " just sent humanitarian aid to " + FACTIONS[chosen_player] + " which helped restore stability.")
+    state.events.append(FACTIONS[state.whose_turn] + " just sent military aid to " + FACTIONS[chosen_player] + " which helped restore stability.")
     return True
 
 def card_effect_cultural_exchange(state, player):
