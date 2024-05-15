@@ -59,15 +59,15 @@ CARDS = {
          # positive
          14: {'name': 'Diplomat', 'cost': 0, 'effect': 'Earn $1 for every 20 reputation points you have.', 'alignment': 1},
          # positive
-         15: {'name': 'Citizen Uplift', 'cost': 20, 'effect': 'Gain 1 goal score per 100 stability. Costs $20', 'alignment': 1},
+         15: {'name': 'Citizen Uplift', 'cost': 20, 'effect': 'Gain 0.1 goal score for 100 stability, and 0.1 for any additional 50 stability. Costs $20', 'alignment': 1},
          # positive
          16: {'name': 'Friendly Neighborhood', 'cost': 0, 'effect': 'Increase money by the sum of reputation with other factions.', 'alignment': 1},
          # negative
          17: {'name': 'Thief', 'cost': 0, 'effect': 'Steal $20 from a random player. Lose 20 reputation with them.', 'alignment': -1},
          # negative
-         18: {'name': 'National Debt', 'cost': 0, 'effect': 'Increase $50 by decreasing 30 stability.', 'alignment': -1},
+         18: {'name': 'National Debt', 'cost': 0, 'effect': 'Increase your $50 by decreasing 30 stability.', 'alignment': -1},
          # negative
-         19: {'name': 'Threat', 'cost': 20, 'effect': 'Gain 50 stability by decreasing another countrys stability and reputation by 30 and 20 respectively', 'alignment': -1}}
+         19: {'name': 'Threat', 'cost': 20, 'effect': 'Gain 50 stability by decreasing another countrys stability and reputation by 30 and 20 respectively.', 'alignment': -1}}
 
 
 for player in PLAYERS.values():
@@ -274,15 +274,18 @@ def card_effect_diplomat(state, player):
 
 def card_effect_citizen_uplift(state, player):
     stability = state.players[state.whose_turn]['stability']
-    [state.whose_turn]['money'] -= 20
+    state.players[state.whose_turn]['money'] -= 20
 
     if stability < 100:
         return True
 
-    goalScore = abs(stability / 100)
-    state.players[state.whose_turn]['goalScore'] += goalScore
+    goalScore += 0.1
+    goalScore += int((stability - 100) / 50) / 10
 
     print(goalScore)
+    state.players[state.whose_turn]['goalScore'] += goalScore
+
+    print(str(FACTIONS[state.whose_turn]) + " has added goal score to their national goal due to citizen stability.")
     state.events.append(FACTIONS[state.whose_turn] + " has added goal score to their national goal due to citizen stability.")
     return True
 
@@ -294,6 +297,8 @@ def card_effect_friendly_neighborhood(state, player):
         sum += additional
     
     state.players[state.whose_turn]['money'] += sum
+
+    print(str(FACTIONS[state.whose_turn]) + " has been rewarded $ for their reputation.")
     state.events.append(FACTIONS[state.whose_turn] + " has been rewarded $ for their reputation.")
     return True
 
@@ -305,7 +310,8 @@ def card_effect_thief(state, player):
 
     state.players[random_player]['reputation'][state.whose_turn] -= 20
     state.players[state.whose_turn]['reputation'][random_player] -= 20
-
+    
+    print(str(FACTIONS[state.whose_turn]) + " has stolen $ from " + str(FACTIONS[random_player]) + '! Their relationship has worsen..')
     state.events.append(FACTIONS[state.whose_turn] + " has stolen $ from " + FACTIONS[random_player] + '! Their relationship has worsen..')
     return True
 
@@ -313,6 +319,7 @@ def card_effect_national_debt(state, player):
     state.players[state.whose_turn]['money'] += 50
     state.players[state.whose_turn]['stability'] -= 30
 
+    print(str(FACTIONS[state.whose_turn]) + " has increased $ by decreasing country stability.")
     state.events.append(FACTIONS[state.whose_turn] + " has increased $ by decreasing country stability.")
     return True
 
@@ -329,6 +336,7 @@ def card_effect_threat(state, player):
     state.players[state.whose_turn]['stability'] += 50
 
     state.players[state.whose_turn]['money'] -= 20
+    print(str(FACTIONS[state.whose_turn]) + " has threaten " + str(FACTIONS[chosen_player]) + " and caused national unstability.")
     state.events.append(FACTIONS[state.whose_turn] + " has threaten " + FACTIONS[chosen_player] + " and caused national unstability.")
     return True
 
