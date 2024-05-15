@@ -63,9 +63,11 @@ CARDS = {
 
 
 for player in PLAYERS.values():
-    player['cards'] = random.sample(list(CARDS.keys()), k=3)
-    player['cards'].append(0)
-
+    player['cards'] = random.sample(list(CARDS.keys()), k=5)
+    
+def deal_cards(state):
+    for player in state.players.values():
+        player['cards'] = random.sample(list(CARDS.keys()), k=5)
 
 def card_effect_treaty(state, player):
     chosen_player = player
@@ -267,31 +269,85 @@ def card_effect_diplomat(state, player):
 # clock mechanic
 def clock_progression(state):
     minutes = 0
-    
-    # possible round values: -4 (all negative cards) to 4 (all positive cards)
-    nuclearMeasure = state.roundAlignment
-    
-    # when phase progresses, if the badness of the cards in a round reaches a certain threshold, then progress the clock
-    # phase values: 1-4
     threshold = -5 + 2 * state.phase
 
+    nuclearMeasure = state.roundAlignment
+
+    # Define narrative strings based on the phase of the game and actions taken
+    phase_narratives = {
+        1: {
+            'positive': "Diplomatic dialogues open across continents, promising beginnings of peace and cooperation.",
+            'negative': "Minor territorial disputes begin to emerge, stirring up regional tensions."
+        },
+        2: {
+            'positive': "International trade agreements strengthen economies and build trust among nations.",
+            'negative': "Cyber-attacks on critical infrastructure sow discord and suspicion among allies."
+        },
+        3: {
+            'positive': "Global conferences set ambitious goals for climate action, uniting nations in a common cause.",
+            'negative': "Resource shortages lead to skirmishes over water and minerals, escalating global tensions."
+        },
+        4: {
+            'positive': "Humanitarian aid missions strengthen bonds and improve international relations.",
+            'negative': "Proxy wars intensify, drawing in surrounding nations and destabilizing entire regions."
+        },
+        5: {
+            'positive': "Breakthroughs in renewable energy reduce dependence on fossil fuels, easing geopolitical pressures.",
+            'negative': "An arms race escalates as nations ramp up their nuclear arsenals."
+        },
+        6: {
+            'positive': "Successful peace talks result in landmark treaties, significantly easing global tensions.",
+            'negative': "Assassination of a high-profile leader throws the world into chaos, spiking tensions dramatically."
+        },
+        7: {
+            'positive': "Major powers lead a global disarmament initiative, heralding a new era of peace.",
+            'negative': "Nationalist movements gain momentum, leading to increased isolationism and fractured international relations."
+        },
+        8: {
+            'positive': "Technological cooperation leads to a boom in global communication and understanding.",
+            'negative': "Espionage and intelligence leaks lead to major diplomatic breakdowns."
+        },
+        9: {
+            'positive': "Global health initiatives eradicate diseases and lift health standards, fostering international goodwill.",
+            'negative': "Economic sanctions cripple several smaller nations, causing humanitarian crises and international condemnation."
+        },
+        10: {
+            'positive': "Cultural exchanges and international arts programs foster a shared sense of global community.",
+            'negative': "Religious and ideological conflicts flare up, leading to widespread civil unrest."
+        },
+        11: {
+            'positive': "Global consensus on human rights advances leads to better treatment of minorities and refugees.",
+            'negative': "Terrorist attacks on major cities rekindle old enmities and fear, pushing nations apart."
+        },
+        12: {
+            'positive': "A historic summit results in a significant reduction in global military expenditures.",
+            'negative': "A false alarm about a missile strike nearly triggers a nuclear war, dramatically advancing the doomsday clock."
+        }
+    }
+
+    # Determine the narrative based on round alignment and phase
     if nuclearMeasure < threshold:
-        # progress the clock
-        minutes += abs(threshold - nuclearMeasure)
-        
+        minutes += abs(threshold) + abs(nuclearMeasure)
+        narrative = phase_narratives[state.game_turn]['negative']
+        state.phase_events.append(narrative + " The doomsday clock was advanced by " + str(minutes) + " minutes due to the actions of the nations in the past turn.")
+    else:
+        narrative = phase_narratives[state.game_turn]['positive']
+        state.phase_events.append(narrative + " The doomsday clock remains steady, reflecting a cautious optimism.")
+
+    # Check player stability and reputations
     for player in state.players:
         if state.players[player]['stability'] < 50:
             minutes += 1
-            
-        if state.players[player]['stability'] > 130:
-            minutes -= 1
-            
+            state.phase_events.append(FACTIONS[player] + " faces internal turmoil, contributing to instability.")
         for other in state.players[player]['reputation']:
+            bad_rep = False
             if state.players[player]['reputation'][other] < 50:
                 minutes += 0.5
-                
-            if state.players[player]['reputation'][other] > 130:
-                minutes -= 0.5
+                bad_rep = True
+            if bad_rep:
+                state.phase_events.append(FACTIONS[player] + " has deteriorating relations, adding to global tensions.")
+
+    # Update the clock based on the calculated minutes
     state.clock['Minute'] += minutes
     ## TODO: if clock hits midnight, do something
 
@@ -302,19 +358,20 @@ def event_ecologic_disaster(state):
     state.clock['Minute'] += 15
     for player in state.players:
         if player == 1:
-            state.events.append("The Black Sun Syndicate suffers from a serious famine, leading to political instability. Lose 10 stability.")
+            state.phase_events.append("The Black Sun Syndicate suffers from a serious famine, leading to political instability. Lose 10 stability.")
             state.players[player]['stability'] -= 10
         if player == 2:
-            state.events.append("A series of earthquakes tear through the Scarlet Empire, you must rebuild. Lose 20 money.")
+            state.phase_events.append("A series of earthquakes tear through the Scarlet Empire, you must rebuild. Lose 20 money.")
             state.players[player]['money'] -= 20
         if player == 3:
-            state.events.append("A rogue cyber terrorist organization launches an attack and steals sensitive information from the Sapphire League. Lose 20 reputation with all factions.")
+            state.phase_events.append("A rogue cyber terrorist organization launches an attack and steals sensitive information from the Sapphire League. Lose 20 reputation with all factions.")
             state.players[player]['reputation'][1] -= 20
             state.players[player]['reputation'][2] -= 20
             state.players[player]['reputation'][4] -= 20
         if player == 4:
-            state.events.append("Wildfires sweep large swathes of the Viridian Concord, destroying your infrastructure. Lose an active card.")
-            state.players[state.whose_turn]['activeCards'].pop()
+            state.phase_events.append("Wildfires sweep large swathes of the Viridian Concord, destroying your infrastructure. Lose an active card.")
+            if state.players[player]['activeCards']:
+                state.players[player]['activeCards'].pop()
 
 def event_political_assassination(state):
     state.clock['Minute'] += 15
@@ -342,7 +399,7 @@ def event_political_assassination(state):
     message += "As a consequence, political power in the " + state.factions[min_stability_player] + " has consolidated around the rebel conspirators, resulting in a more stable"
     message += " balance of power, at the cost of the factions reputation around the world.\nMeanwhile, political turmoil and infighting racks the formerly stable " + state.factions[max_stability_player] + ".\n"
     message += "The situation grows more perilous, and the doomsday clock advances 15 minutes closer to midnight."    
-    state.events.append(message)
+    state.phase_events.append(message)
 
             
 
@@ -383,6 +440,7 @@ class State():
         self.whose_turn = -1
         self.phase = 1
         self.events = []
+        self.phase_events = []
         self.end_game = ""
         self.game_over = False
         self.roundAlignment = 0
@@ -453,6 +511,7 @@ class State():
         new_state.game_turn = self.game_turn
         new_state.factions = self.factions
         new_state.events = self.events
+        new_state.phase_events = self.phase_events
         new_state.phase = self.phase
         new_state.end_game = self.end_game
         new_state.game_over = self.game_over
@@ -500,6 +559,8 @@ class State():
         
     
     def new_turn(self):
+        self.phase_events = []
+        self.whose_turn = -1
         clock_progression(self)
         self.roundAlignment = 0
         print("Phase: " + str(self.phase))
@@ -508,12 +569,15 @@ class State():
             self.game_over = True
             goal_message(self)
         if self.game_turn == 4:
+            deal_cards(self)
             self.phase += 1
             event_ecologic_disaster(self)
         if self.game_turn == 7:
+            deal_cards(self)
             self.phase += 1
             event_political_assassination(self)
         if self.game_turn == 10:
+            deal_cards(self)
             self.phase += 1
             print("Doomsday has arrived!")
             doomsday = random.randint(1, 4)
@@ -523,7 +587,7 @@ class State():
                 ACTIVE_EFFECTS[card](self, player)
 
     def can_proceed(self, role):
-        return True
+        return self.whose_turn == -1
     
     def proceed(self):
         news = self.__copy__()
