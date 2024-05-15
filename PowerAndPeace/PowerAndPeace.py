@@ -57,7 +57,17 @@ CARDS = {
          # negative
          13: {'name': 'Double Agent', 'cost': 50, 'effect': 'Steal 1 goal achievement from a chosen player and lose 20 reputation with them. If chosen player has no achievements, nothing happens.', 'alignment': -1},
          # positive
-         14: {'name': 'Diplomat', 'cost': 0, 'effect': 'Earn $1 for every 20 reputation points you have.', 'alignment': 1}}
+         14: {'name': 'Diplomat', 'cost': 0, 'effect': 'Earn $1 for every 20 reputation points you have.', 'alignment': 1},
+         # positive
+         15: {'name': 'Citizen Uplift', 'cost': 20, 'effect': 'Gain 1 goal score per 100 stability. Costs $20', 'alignment': 1},
+         # positive
+         16: {'name': 'Friendly Neighborhood', 'cost': 0, 'effect': 'Increase money by the sum of reputation with other factions.', 'alignment': 1},
+         # negative
+         17: {'name': 'Thief', 'cost': 0, 'effect': 'Steal $20 from a random player. Lose 20 reputation with them.', 'alignment': -1},
+         # negative
+         18: {'name': 'Risky Riches', 'cost': 0, 'effect': 'Increase $50 by decreasing 30 stability.', 'alignment': -1},
+         # negative
+         19: {'name': 'Threat', 'cost': 20, 'effect': 'Gain 50 stability by decreasing another countrys stability and reputation by 30 and 20 respectively', 'alignment': -1}}
 
 
 for player in PLAYERS.values():
@@ -261,7 +271,68 @@ def card_effect_diplomat(state, player):
     state.players[state.whose_turn]['money'] += reward
     state.events.append(FACTIONS[state.whose_turn] + "'s diplomatic endeavors were rewarded.")
     return True
+
+def card_effect_citizen_uplift(state, player):
+    stability = state.players[state.whose_turn]['stability']
+    [state.whose_turn]['money'] -= 20
+
+    if stability < 100:
+        return True
+
+    goalScore = abs(stability / 100)
+    state.players[state.whose_turn]['goalScore'] += goalScore
+
+    print(goalScore)
+    state.events.append(FACTIONS[state.whose_turn] + " has added goal score to their national goal due to citizen stability.")
+    return True
+
+def card_effect_friendly_neighborhood(state, player):
+    sum = 0
+
+    for player in state.players[state.whose_turn]['reputation']:
+        additional = state.players[state.whose_turn]['reputation'][player] - 100
+        sum += additional
     
+    state.players[state.whose_turn]['money'] += sum
+    state.events.append(FACTIONS[state.whose_turn] + " has been rewarded $ for their reputation.")
+    return True
+
+def card_effect_thief(state, player):
+    random_player = random.choice(list(state.players[state.whose_turn]['reputation'].keys()))
+
+    state.players[random_player]['money'] -= 20
+    state.players[state.whose_turn]['money'] += 20
+
+    state.players[random_player]['reputation'][state.whose_turn] -= 20
+    state.players[state.whose_turn]['reputation'][random_player] -= 20
+
+    state.events.append(FACTIONS[state.whose_turn] + " has stolen $ from " + FACTIONS[random_player] + '! Their relationship has worsen..')
+    return True
+
+def card_effect_risky_riches(state, player):
+    state.players[state.whose_turn]['money'] += 50
+    state.players[state.whose_turn]['stability'] -= 30
+
+    state.events.append(FACTIONS[state.whose_turn] + " has increased $ by decreasing country stability.")
+    return True
+
+def card_effect_threat(state, player):
+    chosen_player = player
+    if chosen_player == -1:
+        state.events.append(FACTIONS[state.whose_turn] + " must choose a player to play that card against")
+        return False
+
+    state.players[chosen_player]['reputation'][state.whose_turn] -= 20
+    state.players[state.whose_turn]['reputation'][chosen_player] -= 20
+
+    state.players[chosen_player]['stability'] -= 30
+    state.players[state.whose_turn]['stability'] += 50
+
+    state.players[state.whose_turn]['money'] -= 20
+    state.events.append(FACTIONS[state.whose_turn] + " has threaten " + FACTIONS[chosen_player] + " and caused national unstability.")
+    return True
+
+
 # clock mechanic
 def clock_progression(state):
     minutes = 0
@@ -359,7 +430,12 @@ CARD_EFFECTS = {
     11: card_effect_inflation_tax,
     12: card_effect_plunder,
     13: card_effect_double_agent,
-    14: card_effect_diplomat
+    14: card_effect_diplomat,
+    15: card_effect_citizen_uplift,
+    16: card_effect_friendly_neighborhood,
+    17: card_effect_thief,
+    18: card_effect_risky_riches,
+    19: card_effect_threat
 }
 
 ACTIVE_EFFECTS = {
