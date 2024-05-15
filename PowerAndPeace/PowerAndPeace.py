@@ -16,10 +16,10 @@ PROBLEM_DESC = \
 
 CLOCK = {'Hour': 11 , 'Minute': 00}
 
-PLAYERS = {1: {'money': 100, 'reputation': {2: 100, 3: 100, 4: 100}, 'cards': [], 'stability': 100, 'goalScore': 1, 'activeCards': []},
-           2: {'money': 100, 'reputation': {1: 100, 3: 100, 4: 100}, 'cards': [], 'stability': 100, 'goalScore': 1, 'activeCards': []},
-           3: {'money': 100, 'reputation': {1: 100, 2: 100, 4: 100}, 'cards': [], 'stability': 100, 'goalScore': 1, 'activeCards': []},
-           4: {'money': 100, 'reputation': {1: 100, 2: 100, 3: 100}, 'cards': [], 'stability': 100, 'goalScore': 1, 'activeCards': []}}
+PLAYERS = {1: {'money': 100, 'reputation': {2: 100, 3: 100, 4: 100}, 'cards': [], 'stability': 100, 'goalScore': 1.0, 'activeCards': []},
+           2: {'money': 100, 'reputation': {1: 100, 3: 100, 4: 100}, 'cards': [], 'stability': 100, 'goalScore': 1.0, 'activeCards': []},
+           3: {'money': 100, 'reputation': {1: 100, 2: 100, 4: 100}, 'cards': [], 'stability': 100, 'goalScore': 1.0, 'activeCards': []},
+           4: {'money': 100, 'reputation': {1: 100, 2: 100, 3: 100}, 'cards': [], 'stability': 100, 'goalScore': 1.0, 'activeCards': []}}
            
 
 FACTIONS = {-1: 'Game Start',
@@ -30,35 +30,35 @@ FACTIONS = {-1: 'Game Start',
 
 CARDS = {
          # neutral
-         0: {'name': 'Treaty', 'cost': 10, 'effect': 'Adds 10 rep to a chosen player and removes 10 rep from their lowest rep player. Costs $10', 'alignment': 0},
+         0: {'name': 'Treaty', 'cost': 10, 'effect': 'Adds 20 rep to a chosen player and removes 10 rep from their lowest rep player. Costs $10', 'alignment': 0},
          # neutral
-         1: {'name': 'Factory', 'cost': 30, 'effect': 'Generates $10 per turn and adds 1 to goal score. Costs $30', 'alignment': 0},
+         1: {'name': 'Factory', 'cost': 50, 'effect': 'Generates $10 per turn and adds 1 to goal score. Costs $50', 'alignment': 0},
          # positive
-         2: {'name': 'Embassy', 'cost': 50, 'effect': 'Generates 10 rep lowest favored country per turn. Costs $50', 'alignment': 1},
+         2: {'name': 'Embassy', 'cost': 50, 'effect': 'Generates 5 rep lowest favored country per turn. Costs $50', 'alignment': 1},
          # positive
-         3: {'name': 'Trade', 'cost': 0, 'effect': 'Increases money by 10 times the number of active cards.', 'alignment': 1},
+         3: {'name': 'Trade', 'cost': 30, 'effect': 'Increases money by 10 times the number of active cards. Costs $30', 'alignment': 1},
          # negative
-         4: {'name': 'Embargo', 'cost': 15, 'effect': 'Drastically reduces rep with a country and reduces their money. Costs $15', 'alignment': -1},
+         4: {'name': 'Embargo', 'cost': 15, 'effect': 'Drastically reduces rep with a country and reduces their money by $30. Costs $10', 'alignment': -1},
          # neutral
          5: {'name': 'Election', 'cost': 25, 'effect': 'Increases factional goal score. Costs $25', 'alignment': 0},
          # positive
-         6: {'name': 'Humanitarian Aid', 'cost': 15, 'effect': 'Increase the stability of another faction by 20. Costs $15', 'alignment': 1},
+         6: {'name': 'Humanitarian Aid', 'cost': 15, 'effect': 'Increase the stability of another chosen faction by 20. Costs $40', 'alignment': 1},
          # positive
-         7: {'name': 'Cultural Exchange', 'cost': 25, 'effect': 'Increase reputation with all countries by 10. Costs $25', 'alignment': 1},
+         7: {'name': 'Cultural Exchange', 'cost': 25, 'effect': 'Increase reputation with all countries by 10. Costs $50', 'alignment': 1},
          # negative
-         8: {'name': 'Sabotage', 'cost': 15, 'effect': 'Discards a card from a random opponent. Costs $15', 'alignment': -1},
+         8: {'name': 'Sabotage', 'cost': 5, 'effect': 'Discards a card from a random opponent. Costs $5', 'alignment': -1},
          # negative
-         9: {'name': 'Spy', 'cost': 20, 'effect': 'Steals a random card from a chosen opponent. Costs $30', 'alignment': -1},
+         9: {'name': 'Spy', 'cost': 10, 'effect': 'Steals a random card from a chosen opponent. Costs $10', 'alignment': -1},
          # neutral
-         10: {'name': 'Economic Boom', 'cost': 0, 'effect': 'Increase $30 and stability by 20, decrease Reputation with all countries by 5.', 'alignment': 0},
+         10: {'name': 'Economic Boom', 'cost': 0, 'effect': 'Increase $30 and stability by 20, decrease Reputation with all countries by 15.', 'alignment': 0},
          # neutral
-         11: {'name': 'Inflation Tax', 'cost': 0, 'effect': 'Earn two times the turn number.', 'alignment': 0},
+         11: {'name': 'Inflation Tax', 'cost': 0, 'effect': 'Earn $10 times the turn number but reduces stability by the same amount.', 'alignment': 0},
          # negative
-         12: {'name': 'Plunder', 'cost': 0, 'effect': 'Steal up to $10 from a chosen player. Lose 10 reputation with them.', 'alignment': -1},
+         12: {'name': 'Plunder', 'cost': 0, 'effect': 'Steal a random amount from $0 - $100 from a chosen player. Lose 20 reputation with them.', 'alignment': -1},
          # negative
-         13: {'name': 'Double Agent', 'cost': 50, 'effect': 'Steal 1 goal achievement from a chosen player and lose 20 reputation with them. If chosen player has no achievements, nothing happens.', 'alignment': -1},
+         13: {'name': 'Double Agent', 'cost': 20, 'effect': 'Steal some goal achievement from a chosen player and lose 20 reputation with them. Costs $20', 'alignment': -1},
          # positive
-         14: {'name': 'Diplomat', 'cost': 0, 'effect': 'Earn $1 for every 20 reputation points you have.', 'alignment': 1}
+         14: {'name': 'Diplomat', 'cost': 0, 'effect': 'Earn $1 for every 30 reputation points you have.', 'alignment': 1}
          }
 
 
@@ -68,6 +68,10 @@ for player in PLAYERS.values():
 def deal_cards(state):
     for player in state.players.values():
         player['cards'] = random.sample(list(CARDS.keys()), k=5)
+
+def alot_money(state):
+    for player in state.players.values():
+        player['money'] += 100
 
 def card_effect_treaty(state, player):
     chosen_player = player
@@ -87,8 +91,8 @@ def card_effect_treaty(state, player):
     least_favored_player = random.choice(least_favored_player_list)
 
     # Increase the reputation with the chosen player
-    state.players[state.whose_turn]['reputation'][chosen_player] += 10
-    state.players[chosen_player]['reputation'][state.whose_turn] += 10
+    state.players[state.whose_turn]['reputation'][chosen_player] += 20
+    state.players[chosen_player]['reputation'][state.whose_turn] += 20
 
     # Decrease the reputation with the least favored player
     state.players[state.whose_turn]['reputation'][least_favored_player] -= 10
@@ -104,8 +108,8 @@ def card_effect_factory(state, player):
     state.players[state.whose_turn]['activeCards'].append(1)
     state.players[state.whose_turn]['goalScore'] += 1
     state.players[state.whose_turn]['stability'] += 10    
-    state.players[state.whose_turn]['money'] -= 30
-    state.events.append(FACTIONS[state.whose_turn] + " has created a factory")
+    state.players[state.whose_turn]['money'] -= 50
+    state.events.append(FACTIONS[state.whose_turn] + " has created a factory which produces $10 every turn")
     return True
 
 def active_effect_factory(state, owner):
@@ -117,7 +121,7 @@ def card_effect_embassy(state, player):
     
     state.players[state.whose_turn]['activeCards'].append(2)
     state.players[state.whose_turn]['money'] -= 50
-    state.events.append(FACTIONS[state.whose_turn] + " has built an embassy")
+    state.events.append(FACTIONS[state.whose_turn] + " has built an embassy generating 5 rep with their lowest rep faction every turn")
     return True
     
 def active_effect_embassy(state, owner):
@@ -125,13 +129,13 @@ def active_effect_embassy(state, owner):
     least_favored_player_list = [player for player, reputation in rep_list.items() if reputation == min(rep_list.values())]
     least_favored_player = random.choice(least_favored_player_list)
 
-    state.players[owner]['reputation'][least_favored_player] += 10
+    state.players[owner]['reputation'][least_favored_player] += 5
     print('You have added reputation with player ' + str(least_favored_player))
 
 def card_effect_trade(state, player):
-    # Increases money by 10 times the number of active cards. Requires positive rep with a country.
-    state.players[state.whose_turn]['money'] += 10 * len(state.players[state.whose_turn]['activeCards'])
-    print(FACTIONS[state.whose_turn] + " just made $" + str(10 * len(state.players[state.whose_turn]['activeCards'])) + " through trade.")
+    # Increases money by 10 times the number of active cards.
+    state.players[state.whose_turn]['money'] += 10 * len(state.players[state.whose_turn]['activeCards']) - 30
+    state.events.append(FACTIONS[state.whose_turn] + " just made $" + str(10 * len(state.players[state.whose_turn]['activeCards'])) + " through trade.")
     return True
 
 def card_effect_embargo(state, player):
@@ -140,19 +144,18 @@ def card_effect_embargo(state, player):
     if chosen_player == -1:
         state.events.append(FACTIONS[state.whose_turn] + " must choose a player to play that card against")
         return False
-    state.players[chosen_player]['money'] -= 20
+    state.players[chosen_player]['money'] -= 30
     state.players[state.whose_turn]['reputation'][chosen_player] -= 20
-    state.players[state.whose_turn]['stability'] -= 1
-    state.players[state.whose_turn]['money'] -= 15
-    print(FACTIONS[state.whose_turn] + " has placed an embargo on " + FACTIONS[chosen_player])
+    state.players[chosen_player]['reputation'][state.whose_turn] -= 20
+    state.players[state.whose_turn]['money'] -= 10
+    state.events.append(FACTIONS[state.whose_turn] + " has placed an embargo on " + FACTIONS[chosen_player] + " reducing their $ by 30.")
     return True
 
 def card_effect_election(state, player):
     # Increases factional goal score
-    state.players[state.whose_turn]['goalScore'] += 1
-    state.players[state.whose_turn]['stability'] -= 1
+    state.players[state.whose_turn]['goalScore'] += .1
     state.players[state.whose_turn]['money'] -= 25
-    print(FACTIONS[state.whose_turn] + " just had an election!")
+    print(FACTIONS[state.whose_turn] + " just had an election slightly increasing their goal score!")
     return True
 
 def card_effect_humanitarian_aid(state, player):
@@ -161,8 +164,8 @@ def card_effect_humanitarian_aid(state, player):
         state.events.append(FACTIONS[state.whose_turn] + " must choose a player to play that card against")
         return False
     state.players[chosen_player]['stability'] += 20
-    state.players[state.whose_turn]['money'] -= 15
-    state.events.append(FACTIONS[state.whose_turn] + " just sent humanitarian aid to " + FACTIONS[chosen_player])
+    state.players[state.whose_turn]['money'] -= 40
+    state.events.append(FACTIONS[state.whose_turn] + " just sent humanitarian aid to " + FACTIONS[chosen_player] + " which helped restore stability.")
     return True
 
 def card_effect_cultural_exchange(state, player):
@@ -170,18 +173,16 @@ def card_effect_cultural_exchange(state, player):
         state.players[state.whose_turn]['reputation'][player] += 10
         state.players[player]['reputation'][state.whose_turn] += 10
     
-    state.players[state.whose_turn]['money'] -= 25
-    state.events.append(FACTIONS[state.whose_turn] + " just engaged in a cultural exchange.")
+    state.players[state.whose_turn]['money'] -= 50
+    state.events.append(FACTIONS[state.whose_turn] + " just engaged in a cultural exchange increasing rep with all factions.")
     return True
 
 def card_effect_sabotage(state, player):
     random_player = random.choice(list(state.players[state.whose_turn]['reputation'].keys()))
     random_card = random.choice(state.players[random_player]['cards'])
     state.players[random_player]['cards'].remove(random_card)
-
-    print('You have discarded card ' + str(random_card) + ' from player ' + str(random_player) + '!')
-    state.players[state.whose_turn]['money'] -= 15
-    state.events.append(FACTIONS[state.whose_turn] + " just sabatoged " + FACTIONS[random_player])
+    state.players[state.whose_turn]['money'] -= 5
+    state.events.append(FACTIONS[state.whose_turn] + " just sabatoged " + FACTIONS[random_player] + " and destroyed one of their cards!")
     return True
 
 def card_effect_spy(state, player):
@@ -195,23 +196,24 @@ def card_effect_spy(state, player):
 
     state.players[chosen_player]['cards'].remove(card)
     state.players[state.whose_turn]['cards'].append(card)
-    state.players[state.whose_turn]['money'] -= 30
-    state.events.append(FACTIONS[state.whose_turn] + " has spied on " + FACTIONS[chosen_player])
+    state.players[state.whose_turn]['money'] -= 10
+    state.events.append(FACTIONS[state.whose_turn] + " has spied on " + FACTIONS[chosen_player] + " and stolen one of their cards.")
     return True
 
 def card_effect_economic_boom(state, player):
-    state.players[state.whose_turn]['money'] += 20
-    state.players[state.whose_turn]['stability'] += 10
+    state.players[state.whose_turn]['money'] += 30
+    state.players[state.whose_turn]['stability'] += 20
 
     for player in state.players[state.whose_turn]['reputation']:
-        state.players[state.whose_turn]['reputation'][player] -= 5
-        state.players[player]['reputation'][state.whose_turn] -= 5
-    state.events.append(FACTIONS[state.whose_turn] + " just had an economic boom!")
+        state.players[state.whose_turn]['reputation'][player] -= 15
+        state.players[player]['reputation'][state.whose_turn] -= 15
+    state.events.append(FACTIONS[state.whose_turn] + " just had an economic boom increasing their money and stability but decreasing their rep!")
     return True
         
 def card_effect_inflation_tax(state, player):
-    state.players[state.whose_turn]['money'] += 3 * state.game_turn
-    state.events.append(FACTIONS[state.whose_turn] + " just set an inflation tax on their population.")
+    state.players[state.whose_turn]['stability'] -= 10 * state.game_turn
+    state.players[state.whose_turn]['money'] += 10 * state.game_turn
+    state.events.append(FACTIONS[state.whose_turn] + " just set an inflation tax on their population increasing their money, but decreasing their stability.")
     return True
     
 def card_effect_plunder(state, player):
@@ -221,15 +223,15 @@ def card_effect_plunder(state, player):
         return False
     
     # Decrease the reputation with the chosen player
-    state.players[state.whose_turn]['reputation'][chosen_player] -= 30
-    state.players[chosen_player]['reputation'][state.whose_turn] -= 30
+    state.players[state.whose_turn]['reputation'][chosen_player] -= 20
+    state.players[chosen_player]['reputation'][state.whose_turn] -= 20
 
     # take their money
-    max = min(state.players[chosen_player]['money'], 30) / 2
+    max = min(state.players[chosen_player]['money'], 100)
     loot = random.randint(0, max)
     state.players[chosen_player]['money'] -= loot
     state.players[state.whose_turn]['money'] += loot
-    state.events.append(FACTIONS[state.whose_turn] + " has plundered " + FACTIONS[chosen_player])
+    state.events.append(FACTIONS[state.whose_turn] + " has plundered " + FACTIONS[chosen_player] + " and stole $" + str(loot))
     return True
     
 def card_effect_double_agent(state, player):
@@ -239,31 +241,25 @@ def card_effect_double_agent(state, player):
         return False
 
     # take their goalScore
-    goal = min(state.players[chosen_player]['goalScore'], 1)
-    if goal == 1:
-        # Decrease the reputation with the chosen player
-        state.players[state.whose_turn]['reputation'][chosen_player] -= 20
-        state.players[chosen_player]['reputation'][state.whose_turn] -= 20
-        
-        state.players[chosen_player]['goalScore'] -= goal
-        state.players[state.whose_turn]['goalScore'] += goal
-        state.players[state.whose_turn]['money'] -= 50
-        state.events.append(FACTIONS[state.whose_turn] + " planted a double agent against " + FACTIONS[chosen_player])
-        return True
-    else:
-        state.events.append(FACTIONS[state.whose_turn] + " must play that card against someone that has goal score.")
-        return False
+
+    # Decrease the reputation with the chosen player
+    state.players[state.whose_turn]['reputation'][chosen_player] -= 20
+    state.players[chosen_player]['reputation'][state.whose_turn] -= 20
+    
+    state.players[chosen_player]['goalScore'] -= .1
+    state.players[state.whose_turn]['goalScore'] += .1
+    state.players[state.whose_turn]['money'] -= 20
+    state.events.append(FACTIONS[state.whose_turn] + " planted a double agent against " + FACTIONS[chosen_player] + " and stole some of their goal score.")
+    return True
     
 def card_effect_diplomat(state, player):
     favorability = 0
     for player in state.players[state.whose_turn]['reputation']:
         favorability += state.players[state.whose_turn]['reputation'][player]
-        print(state.players[state.whose_turn]['reputation'][player])
-        print(favorability)
-    reward = favorability // 20
+    reward = favorability // 30
     print(reward)
     state.players[state.whose_turn]['money'] += reward
-    state.events.append(FACTIONS[state.whose_turn] + "'s diplomatic endeavors were rewarded.")
+    state.events.append(FACTIONS[state.whose_turn] + "'s diplomatic endeavors were rewarded and they earned some $.")
     return True
     
 # clock mechanic
@@ -332,20 +328,23 @@ def clock_progression(state):
         state.phase_events.append(narrative + " The doomsday clock was advanced by " + str(minutes) + " minutes due to the actions of the nations in the past turn.")
     else:
         narrative = phase_narratives[state.game_turn]['positive']
-        state.phase_events.append(narrative + " The doomsday clock remains steady, reflecting a cautious optimism.")
+        state.phase_events.append(narrative + " The doomsday clock remains steady, reflecting a cautious optimism due to the actions of the nations in the past turn.")
 
     # Check player stability and reputations
     for player in state.players:
         if state.players[player]['stability'] < 50:
             minutes += 1
             state.phase_events.append(FACTIONS[player] + " faces internal turmoil, contributing to instability.")
+        bad_rep = False
         for other in state.players[player]['reputation']:
-            bad_rep = False
             if state.players[player]['reputation'][other] < 50:
                 minutes += 0.5
                 bad_rep = True
-            if bad_rep:
-                state.phase_events.append(FACTIONS[player] + " has deteriorating relations, adding to global tensions.")
+        if bad_rep:
+            state.phase_events.append(FACTIONS[player] + " has deteriorating relations, adding to global tensions.")
+        if state.players[player]['money'] < 0:
+            state.phase_events.append(FACTIONS[player] + " is having significant economic problems thus reducing their stability proportionately.")
+            state.players[player]['stability'] -= state.players[player]['money']
 
     # Update the clock based on the calculated minutes
     state.clock['Minute'] += minutes
@@ -547,7 +546,6 @@ class State():
             self.players[self.whose_turn]['cards'].remove(card)
             news = self.__copy__()  # start with a deep copy.
             news.whose_turn = (news.whose_turn % 4) + 1
-            news.players[news.whose_turn]['cards'].append(1)
             if news.whose_turn == 1:
                 news.new_turn()
             return news  # return new state
@@ -569,14 +567,17 @@ class State():
             self.game_over = True
             goal_message(self)
         if self.game_turn == 4:
+            alot_money(self)
             deal_cards(self)
             self.phase += 1
             event_ecologic_disaster(self)
         if self.game_turn == 7:
+            alot_money(self)
             deal_cards(self)
             self.phase += 1
             event_political_assassination(self)
         if self.game_turn == 10:
+            alot_money(self)
             deal_cards(self)
             self.phase += 1
             print("Doomsday has arrived!")
