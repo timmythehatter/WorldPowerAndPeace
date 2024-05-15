@@ -65,7 +65,7 @@ CARDS = {
          # negative
          17: {'name': 'Thief', 'cost': 0, 'effect': 'Steal $20 from a random player. Lose 20 reputation with them.', 'alignment': -1},
          # negative
-         18: {'name': 'Risky Riches', 'cost': 0, 'effect': 'Increase $50 by decreasing 30 stability.', 'alignment': -1},
+         18: {'name': 'National Debt', 'cost': 0, 'effect': 'Increase $50 by decreasing 30 stability.', 'alignment': -1},
          # negative
          19: {'name': 'Threat', 'cost': 20, 'effect': 'Gain 50 stability by decreasing another countrys stability and reputation by 30 and 20 respectively', 'alignment': -1}}
 
@@ -309,7 +309,7 @@ def card_effect_thief(state, player):
     state.events.append(FACTIONS[state.whose_turn] + " has stolen $ from " + FACTIONS[random_player] + '! Their relationship has worsen..')
     return True
 
-def card_effect_risky_riches(state, player):
+def card_effect_national_debt(state, player):
     state.players[state.whose_turn]['money'] += 50
     state.players[state.whose_turn]['stability'] -= 30
 
@@ -434,7 +434,7 @@ CARD_EFFECTS = {
     15: card_effect_citizen_uplift,
     16: card_effect_friendly_neighborhood,
     17: card_effect_thief,
-    18: card_effect_risky_riches,
+    18: card_effect_national_debt,
     19: card_effect_threat
 }
 
