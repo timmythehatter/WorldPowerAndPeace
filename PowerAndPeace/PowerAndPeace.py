@@ -14,7 +14,7 @@ PROBLEM_DESC = \
 
 # <COMMON_DATA>
 
-CLOCK = {'Hour': 11 , 'Minute': 00}
+CLOCK = {'Hour': 11 , 'Minute': 10}
 
 PLAYERS = {1: {'money': 100, 'reputation': {2: 100, 3: 100, 4: 100}, 'cards': [], 'stability': 100, 'goalScore': 0, 'activeCards': []},
            2: {'money': 100, 'reputation': {1: 100, 3: 100, 4: 100}, 'cards': [], 'stability': 100, 'goalScore': 0, 'activeCards': []},
@@ -27,21 +27,37 @@ FACTIONS = {1: 'Black Sun Syndicate',
             3: 'Sapphire League',
             4: 'Viridian Concord'}
 
-CARDS = {0: {'name': 'Treaty', 'cost': 10, 'effect': 'Adds 10 rep to a chosen player and removes 10 rep from their lowest rep player. Costs $10'},
-         1: {'name': 'Factory', 'cost': 30, 'effect': 'Generates $10 per turn and adds 1 to goal score. Costs $30'},
-         2: {'name': 'Embassy', 'cost': 50, 'effect': 'Generates 10 rep lowest favored country per turn. Costs $50'},
-         3: {'name': 'Trade', 'cost': 0, 'effect': 'Increases money by 10 times the number of active cards.'},
-         4: {'name': 'Embargo', 'cost': 15, 'effect': 'Drastically reduces rep with a country and reduces their money. Costs $15'},
-         5: {'name': 'Election', 'cost': 25, 'effect': 'Increases factional goal score. Costs $25'},
-         6: {'name': 'Humanitarian Aid', 'cost': 15, 'effect': 'Increase the stability of another faction by 20. Costs $15'},
-         7: {'name': 'Cultural Exchange', 'cost': 25, 'effect': 'Increase reputation with all countries by 10. Costs $25'},
-         8: {'name': 'Sabotage', 'cost': 15, 'effect': 'Discards a card from a random opponent. Costs $15'},
-         9: {'name': 'Spy', 'cost': 20, 'effect': 'Steals a random card from a chosen opponent. Costs $30'},
-         10: {'name': 'Economic Boom', 'cost': 0, 'effect': 'Increase $30 and stability by 20, decrease Reputation with all countries by 5.'},
-         11: {'name': 'Inflation Tax', 'cost': 0, 'effect': 'Earn two times the turn number.'},
-         12: {'name': 'Plunder', 'cost': 0, 'effect': 'Steal up to $10 from a chosen player. Lose 10 reputation with them.'},
-         13: {'name': 'Double Agent', 'cost': 50, 'effect': 'Steal 1 goal achievement from a chosen player and lose 20 reputation with them. If chosen player has no achievements, nothing happens.'},
-         14: {'name': 'Diplomat', 'cost': 0, 'effect': 'Earn $1 for every 20 reputation points you have.'}}
+CARDS = {
+         # neutral
+         0: {'name': 'Treaty', 'cost': 10, 'effect': 'Adds 10 rep to a chosen player and removes 10 rep from their lowest rep player. Costs $10', 'alignment': 0},
+         # neutral
+         1: {'name': 'Factory', 'cost': 30, 'effect': 'Generates $10 per turn and adds 1 to goal score. Costs $30', 'alignment': 0},
+         # positive
+         2: {'name': 'Embassy', 'cost': 50, 'effect': 'Generates 10 rep lowest favored country per turn. Costs $50', 'alignment': 1},
+         # positive
+         3: {'name': 'Trade', 'cost': 0, 'effect': 'Increases money by 10 times the number of active cards.', 'alignment': 1},
+         # negative
+         4: {'name': 'Embargo', 'cost': 15, 'effect': 'Drastically reduces rep with a country and reduces their money. Costs $15', 'alignment': -1},
+         # neutral
+         5: {'name': 'Election', 'cost': 25, 'effect': 'Increases factional goal score. Costs $25', 'alignment': 0},
+         # positive
+         6: {'name': 'Humanitarian Aid', 'cost': 15, 'effect': 'Increase the stability of another faction by 20. Costs $15', 'alignment': 1},
+         # positive
+         7: {'name': 'Cultural Exchange', 'cost': 25, 'effect': 'Increase reputation with all countries by 10. Costs $25', 'alignment': 1},
+         # negative
+         8: {'name': 'Sabotage', 'cost': 15, 'effect': 'Discards a card from a random opponent. Costs $15', 'alignment': -1},
+         # negative
+         9: {'name': 'Spy', 'cost': 20, 'effect': 'Steals a random card from a chosen opponent. Costs $30', 'alignment': -1},
+         # neutral
+         10: {'name': 'Economic Boom', 'cost': 0, 'effect': 'Increase $30 and stability by 20, decrease Reputation with all countries by 5.', 'alignment': 0},
+         # neutral
+         11: {'name': 'Inflation Tax', 'cost': 0, 'effect': 'Earn two times the turn number.', 'alignment': 0},
+         # negative
+         12: {'name': 'Plunder', 'cost': 0, 'effect': 'Steal up to $10 from a chosen player. Lose 10 reputation with them.', 'alignment': -1},
+         # negative
+         13: {'name': 'Double Agent', 'cost': 50, 'effect': 'Steal 1 goal achievement from a chosen player and lose 20 reputation with them. If chosen player has no achievements, nothing happens.', 'alignment': -1},
+         # positive
+         14: {'name': 'Diplomat', 'cost': 0, 'effect': 'Earn $1 for every 20 reputation points you have.', 'alignment': 1}}
 
 
 for player in PLAYERS.values():
@@ -249,21 +265,32 @@ def card_effect_diplomat(state, player):
 # clock mechanic
 def clock_progression(state):
     minutes = 0
+    
+    # possible round values: -4 (all negative cards) to 4 (all positive cards)
+    nuclearMeasure = state.roundAlignment
+    
+    # when phase progresses, if the badness of the cards in a round reaches a certain threshold, then progress the clock
+    # phase values: 1-4
+    threshold = -5 + 2 * state.phase
+
+    if nuclearMeasure < threshold:
+        # progress the clock
+        minutes += abs(threshold - nuclearMeasure)
+    
     for player in state.players:
         if state.players[player]['stability'] < 50:
             minutes += 1
             
-        if state.players[player]['stability'] > 80:
+        if state.players[player]['stability'] > 120:
             minutes -= 1
             
         for other in state.players[player]['reputation']:
-            if state.players[player]['reputation'][other] < 45:
+            if state.players[player]['reputation'][other] < 50:
                 minutes += 0.5
                 
-            if state.players[player]['reputation'][other] > 75:
+            if state.players[player]['reputation'][other] > 120:
                 minutes -= 0.5
     state.clock['Minute'] += minutes
-    ## TODO: if clock hits midnight, do something
 
 ## TODO: Randomize player effects Q
 def event_ecologic_disaster(state):
@@ -353,6 +380,7 @@ class State():
         self.whose_turn = 1
         self.phase = 1
         self.events = []
+        self.roundAlignment = 0
 
         
 
@@ -417,6 +445,7 @@ class State():
         new_state.factions = self.factions
         new_state.events = self.events
         new_state.phase = self.phase
+        new_state.roundAlignment = self.roundAlignment
 
         return new_state
 
@@ -442,6 +471,7 @@ class State():
             played = CARD_EFFECTS[card](self, player)
             if not played:
                 return self
+            self.roundAlignment += CARDS[card]['alignment']
             self.players[self.whose_turn]['cards'].remove(card)
             news = self.__copy__()  # start with a deep copy.
             news.whose_turn = (news.whose_turn % 4) + 1
@@ -460,7 +490,8 @@ class State():
     
     def new_turn(self):
         clock_progression(self)
-        print("Phase: " + str(self.phase))
+        # new
+        self.roundAlignment = 0
         self.game_turn += 1
         if self.game_turn == 4:
             self.phase += 1
