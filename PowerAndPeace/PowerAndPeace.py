@@ -14,7 +14,7 @@ PROBLEM_DESC = \
 
 # <COMMON_DATA>
 
-CLOCK = {'Hour': 11 , 'Minute': 10}
+CLOCK = {'Hour': 11 , 'Minute': 00}
 
 PLAYERS = {1: {'money': 100, 'reputation': {2: 100, 3: 100, 4: 100}, 'cards': [], 'stability': 100, 'goalScore': 0, 'activeCards': []},
            2: {'money': 100, 'reputation': {1: 100, 3: 100, 4: 100}, 'cards': [], 'stability': 100, 'goalScore': 0, 'activeCards': []},
@@ -408,6 +408,8 @@ class State():
                 return False 
             if self.phase != s2.phase:
                 return False
+            if self.roundAlignment != s2.roundAlignment:
+                return False
         return True
 
     def __str__(self):
@@ -490,8 +492,8 @@ class State():
     
     def new_turn(self):
         clock_progression(self)
-        # new
         self.roundAlignment = 0
+        print("Phase: " + str(self.phase))
         self.game_turn += 1
         if self.game_turn == 4:
             self.phase += 1
