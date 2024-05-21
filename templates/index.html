@@ -184,7 +184,7 @@ socket.on('problem_state', function(data) {
  $("#state_svg").replaceWith(data['vis']); } )
 
 socket.on('game_started', function(data) {
-    alert("The Game Has Started!");
+    alert("The Game Has Started! Please keep in mind only the session owner can progress passed story elements.");
     //Hide the roles and other info not essential for play.
     $("#rolesdiv").hide();
     $(".about").hide();

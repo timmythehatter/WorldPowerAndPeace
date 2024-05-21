@@ -362,9 +362,17 @@ def session_disconnect():
 def command(data):
     global PROBLEM, STATE_SVG, DEBUG, CURRENT_STATE
     global GAME_IN_PROGRESS, ROLES_FROZEN, ROLES, ROLES_DATA
+    
     cmd = data['command']
+    username = data.get('username')
+
+    user_roles = get_roles_for_user(username)
+
     SESSION['USERNAME']=data['username']
+    if CURRENT_STATE:
+       print('the current player is' + str(CURRENT_STATE.whose_turn))
     if DEBUG: print("command received: "+str(cmd))
+    
     if cmd=="H" or cmd=="h":
         emit('show_help', {'message': show_instructions()})
     if cmd=="start":
@@ -411,51 +419,58 @@ def command(data):
     #---at this point the command should a number
     #---indicating which operator to apply
     if not GAME_IN_PROGRESS: return
-    cmd_split = cmd.split()
-    if len(cmd_split) == 2:
-      try:
-        i = int(cmd_split[0])
-        j = int(cmd_split[1])
-      except:
-        if DEBUG: print("Unknown command or bad operator number.")
-        return # mes("Unknown command or bad operator number.")
-    else:
-      try:
-        i = int(cmd)
-        j = -1
-      except:
-        if DEBUG: print("Unknown command or bad operator number.")
-        return # mes("Unknown command or bad operator number.")
-    if DEBUG: print("Operator "+str(i)+" selected.")
-    if i<0 or i>= len(OPERATORS):
-      if DEBUG: print("There is no operator with number "+str(i))
-      return # mes("There is no operator with number.")
-    if j < -1 or j > 3:
-       if DEBUG: print("There is no player with that value")
-       return
 
-    if not CURRENT_STATE.is_goal():
-      CURRENT_STATE = OPERATORS[i].apply(CURRENT_STATE, j)
-      STATE_STACK.append(CURRENT_STATE)
+    if CURRENT_STATE.whose_turn - 1 in user_roles or (CURRENT_STATE.whose_turn == -1 and username == SESSION['SESSION_OWNER']):
+      cmd_split = cmd.split()
+      if len(cmd_split) == 2:
+        try:
+          i = int(cmd_split[0])
+          j = int(cmd_split[1])
+        except:
+          if DEBUG: print("Unknown command or bad operator number.")
+          return # mes("Unknown command or bad operator number.")
+      else:
+        try:
+          i = int(cmd)
+          j = -1
+        except:
+          if DEBUG: print("Unknown command or bad operator number.")
+          return # mes("Unknown command or bad operator number.")
+      if DEBUG: print("Operator "+str(i)+" selected.")
+      if i<0 or i>= len(OPERATORS):
+        if DEBUG: print("There is no operator with number "+str(i))
+        return # mes("There is no operator with number.")
+      if j < -1 or j > 3:
+        if DEBUG: print("There is no player with that value")
+        return
 
-  # Step 1 to update browser
-      try: 
-        if PROBLEM.BRIFL_SVG:
-            STATE_SVG = PROBLEM.render_state(CURRENT_STATE)
-            if DEBUG: print("A new state graphic was produced.")
-      except Exception as e:
-        print("There was an exception when trying to do SVG rendering of the CURRENT_STATE.")
-        print(e)
+      if not CURRENT_STATE.is_goal():
+        CURRENT_STATE = OPERATORS[i].apply(CURRENT_STATE, j)
+        STATE_STACK.append(CURRENT_STATE)
 
-  # Step 2 to update browser
-      emit_problem_state()
-      update_applicability_vector(CURRENT_STATE)
+    # Step 1 to update browser
+        try: 
+          if PROBLEM.BRIFL_SVG:
+              STATE_SVG = PROBLEM.render_state(CURRENT_STATE)
+              if DEBUG: print("A new state graphic was produced.")
+        except Exception as e:
+          print("There was an exception when trying to do SVG rendering of the CURRENT_STATE.")
+          print(e)
 
-    else:
-       handle_win()
-       STATE_SVG = PROBLEM.render_state(CURRENT_STATE)
-        
-    return
+    # Step 2 to update browser
+        emit_problem_state()
+        update_applicability_vector(CURRENT_STATE)
+
+      else:
+        handle_win()
+        STATE_SVG = PROBLEM.render_state(CURRENT_STATE)
+          
+      return
+    else: 
+      print("Current player: " + str(CURRENT_STATE.whose_turn + 1))
+      print("user roles:")
+      print(user_roles)
+    
 
 def handle_win():
     mes=PROBLEM.goal_message(CURRENT_STATE)
