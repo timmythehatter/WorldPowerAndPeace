@@ -59,17 +59,17 @@ CARDS = {
          13: {'name': 'Double Agent', 'cost': 20, 'effect': 'Steal some goal achievement from a chosen player and lose 20 reputation with them. Costs $20', 'alignment': -1},
          # positive
          14: {'name': 'Diplomacy', 'cost': 0, 'effect': 'Earn $1 for every 30 reputation points you have.', 'alignment': 1},
-        #  # positive
-        #  15: {'name': 'Citizen Uplift', 'cost': 20, 'effect': 'Gain 0.1 goal score for 100 stability, and 0.1 for any additional 50 stability. Costs $20', 'alignment': 1},
-        #  # positive
-        #  16: {'name': 'Friendly Neighborhood', 'cost': 0, 'effect': 'Increase money by the sum of reputation with other factions.', 'alignment': 1},
-        #  # negative
-        #  17: {'name': 'Thief', 'cost': 0, 'effect': 'Steal $20 from a random player. Lose 20 reputation with them.', 'alignment': -1},
-        #  # negative
-        #  18: {'name': 'National Debt', 'cost': 0, 'effect': 'Increase your $50 by decreasing 30 stability.', 'alignment': -1},
-        #  # negative
-        #  19: {'name': 'Threat', 'cost': 20, 'effect': 'Gain 50 stability by decreasing another countrys stability and reputation by 30 and 20 respectively.', 'alignment': -1}
-         }
+         # positive
+         15: {'name': 'Citizen Uplift', 'cost': 20, 'effect': 'Gain 0.1 goal score for 100 stability, and 0.1 for any additional 50 stability. Costs $20', 'alignment': 1},
+         # positive
+         16: {'name': 'Friendly Neighborhood', 'cost': 0, 'effect': 'Increase money by the sum of reputation with other factions.', 'alignment': 1},
+         # negative
+         17: {'name': 'Thief', 'cost': 0, 'effect': 'Steal $20 from a random player. Lose 20 reputation with them.', 'alignment': -1},
+         # negative
+         18: {'name': 'National Debt', 'cost': 0, 'effect': 'Increase your $50 by decreasing 30 stability.', 'alignment': -1},
+         # negative
+         19: {'name': 'Threat', 'cost': 20, 'effect': 'Gain 50 stability by decreasing another countrys stability and reputation by 30 and 20 respectively.', 'alignment': -1}
+        }
 
 
 for player in PLAYERS.values():

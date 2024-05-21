@@ -367,7 +367,7 @@ BSS_CARDS = {
     1: "bss_cards/bss_factory.png",
     2: "bss_cards/bss_embassy.png",
     3: "bss_cards/bss_technology_research.png",
-    4: "bss_cards/bss_blockade.png",
+    4: "bss_cards/bss_blockade.png","
     5: "bss_cards/bss_election.png",
     6: "bss_cards/bss_military_aid.png",
     7: "bss_cards/bss_international_summit.png",
@@ -377,7 +377,12 @@ BSS_CARDS = {
     11: "bss_cards/bss_nuclear_energy.png",
     12: "bss_cards/bss_spy_satellite.png",
     13: "bss_cards/bss_double_agent.png",
-    14: "bss_cards/bss_diplomacy.png"
+    14: "bss_cards/bss_diplomacy.png",
+    15: "bss_cards/bss_citizen_uplift.png",
+    16: "bss_cards/bss_friendly_neighborhood.png",
+    17: "bss_cards/bss_thief.png",
+    18: "bss_cards/bss_national_debt.png",
+    19: "bss_cards/bss_threat.png"
 }
 
 SE_CARDS = {
@@ -395,7 +400,12 @@ SE_CARDS = {
     11: "se_cards/se_nuclear_energy.png",
     12: "se_cards/se_spy_satellite.png",
     13: "se_cards/se_double_agent.png",
-    14: "se_cards/se_diplomacy.png"
+    14: "se_cards/se_diplomacy.png",
+    15: "se_cards/se_citizen_uplift.png",
+    16: "se_cards/se_friendly_neighborhood.png",
+    17: "se_cards/se_thief.png",
+    18: "se_cards/se_national_debt.png",
+    19: "se_cards/se_threat.png"
 }
 
 SL_CARDS = {
@@ -413,7 +423,12 @@ SL_CARDS = {
     11: "sl_cards/sl_nuclear_energy.png",
     12: "sl_cards/sl_spy_satellite.png",
     13: "sl_cards/sl_double_agent.png",
-    14: "sl_cards/sl_diplomacy.png"
+    14: "sl_cards/sl_diplomacy.png",
+    15: "sl_cards/sl_citizen_uplift.png",
+    16: "sl_cards/sl_friendly_neighborhood.png",
+    17: "sl_cards/sl_thief.png",
+    18: "sl_cards/sl_national_debt.png",
+    19: "sl_cards/sl_threat.png"
 }
 
 VC_CARDS = {
@@ -431,7 +446,12 @@ VC_CARDS = {
     11: "vc_cards/vc_nuclear_energy.png",
     12: "vc_cards/vc_spy_satellite.png",
     13: "vc_cards/vc_double_agent.png",
-    14: "vc_cards/vc_diplomacy.png"
+    14: "vc_cards/vc_diplomacy.png",
+    15: "vc_cards/vc_citizen_uplift.png",
+    16: "vc_cards/vc_friendly_neighborhood.png",
+    17: "vc_cards/vc_thief.png",
+    18: "vc_cards/vc_national_debt.png",
+    19: "vc_cards/vc_threat.png"
 }
 
 if __name__ == '__main__':
