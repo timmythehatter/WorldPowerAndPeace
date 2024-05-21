@@ -116,7 +116,6 @@ def card_effect_treaty(state, player):
 
 def card_effect_factory(state, player):
     state.players[state.whose_turn]['activeCards'].append(1)
-    state.players[state.whose_turn]['goalScore'] += 1
     state.players[state.whose_turn]['stability'] += 10    
     state.players[state.whose_turn]['money'] -= 50
     state.events.append(FACTIONS[state.whose_turn] + " has created a factory which produces $10 every turn")
@@ -432,7 +431,7 @@ def clock_progression(state):
 def event_ecologic_disaster(state):
     print("A series of ecological crises erupt all over the globe, causing tensions to rise!")
     print("The doomsday clock advances 15 minutes.")
-    state.clock['Minute'] += 15
+    state.clock['Minute'] += 10
     for player in state.players:
         if player == 1:
             state.phase_events.append("The Black Sun Syndicate suffers from a serious famine, leading to political instability. Lose 10 stability.")
@@ -451,7 +450,7 @@ def event_ecologic_disaster(state):
                 state.players[player]['activeCards'].pop()
 
 def event_political_assassination(state):
-    state.clock['Minute'] += 15
+    state.clock['Minute'] += 10
     max_stability = -float('inf')
     min_stability = float('inf')
     max_stability_player = None
@@ -477,8 +476,6 @@ def event_political_assassination(state):
     message += " balance of power, at the cost of the factions reputation around the world.\nMeanwhile, political turmoil and infighting racks the formerly stable " + state.factions[max_stability_player] + ".\n"
     message += "The situation grows more perilous, and the doomsday clock advances 15 minutes closer to midnight."    
     state.phase_events.append(message)
-
-            
 
 
 CARD_EFFECTS = {
@@ -644,9 +641,8 @@ class State():
         self.whose_turn = -1
         clock_progression(self)
         self.roundAlignment = 0
-        print("Phase: " + str(self.phase))
         self.game_turn += 1
-        if self.game_turn == 13 and self.whose_turn == 1:
+        if self.game_turn == 13 or self.clock['Minute'] >= 60:
             self.game_over = True
             goal_message(self)
         if self.game_turn == 4:

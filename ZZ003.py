@@ -440,7 +440,7 @@ def command(data):
       if i<0 or i>= len(OPERATORS):
         if DEBUG: print("There is no operator with number "+str(i))
         return # mes("There is no operator with number.")
-      if j < -1 or j > 3:
+      if j < -1 or j == 0 or j > 4:
         if DEBUG: print("There is no player with that value")
         return
 

@@ -76,6 +76,20 @@ def render_state(s, roles=None):
                             viewBox=f"0 0 {W} {H}",
                             debug=False)
     
+    if s.game_over:
+        text = dwg.text("", insert=("50%", "50%"), text_anchor="middle", font_size="24px", fill="red")
+    
+        # Split the end game message into lines
+        lines = s.end_game.split('\n')
+        for i, line in enumerate(lines):
+            # Add each line as a tspan, adjusting 'dy' for line spacing
+            text.add(dwg.tspan(line, x=["50%"], dy=["1.2em"] if i > 0 else ["0em"]))
+    
+        # Add the complete text element to the drawing
+        dwg.add(text)
+        return dwg.tostring()
+
+    
     if s.whose_turn == -1:
         if s.game_turn == 1:
             # # Path to your background image
