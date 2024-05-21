@@ -178,6 +178,9 @@ def render_state(s, roles=None):
         f"STABILITY: {s.players[role]['stability']}",
         f"GOAL SCORE: {s.players[role]['goalScore']}"
     ]
+    if role-1 in roles:
+        for target_player, reputation_value in s.players[role]['reputation'].items():
+            role_state.append(f"    - {FACTIONS[target_player]}: {reputation_value}")
 
 
     other_players = []
@@ -265,9 +268,12 @@ def render_state(s, roles=None):
                      fill="white"))
     
 
+    
+
     for i in range(0, len(s.players[role]['cards'])):
         offset = 33 + 10 * i
         if (role-1) in roles:
+
             if role == 1:
                 add_image_to_svg(dwg, BSS_CARDS[s.players[role]['cards'][i]], (str(offset) + "%", "76%"), ("20%", "20%"))
             elif role == 2:
