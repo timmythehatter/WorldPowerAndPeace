@@ -367,7 +367,7 @@ BSS_CARDS = {
     1: "bss_cards/bss_factory.png",
     2: "bss_cards/bss_embassy.png",
     3: "bss_cards/bss_technology_research.png",
-    4: "bss_cards/bss_blockade.png","
+    4: "bss_cards/bss_blockade.png",
     5: "bss_cards/bss_election.png",
     6: "bss_cards/bss_military_aid.png",
     7: "bss_cards/bss_international_summit.png",

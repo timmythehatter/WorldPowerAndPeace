@@ -279,7 +279,7 @@ def card_effect_citizen_uplift(state, player):
     if stability < 100:
         return True
 
-    goalScore += 0.1
+    goalScore = 0.1
     goalScore += int((stability - 100) / 50) / 10
 
     print(goalScore)
